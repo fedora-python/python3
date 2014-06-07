@@ -127,7 +127,7 @@
 # ==================
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
-Version: %{pybasever}.1
+Version: %{pybasever}.0
 Release:        0.2.20140607hg585ad5d806bd%{?dist}
 License: Python
 Group: Development/Languages
@@ -1841,7 +1841,7 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
-* Sat Jun 07 2014 Miro Hrončok <mhroncok@redhat.com> - %{pybasever}.1-0.2.20140607hg585ad5d806bd
+* Sat Jun 07 2014 Miro Hrončok <mhroncok@redhat.com> - %{pybasever}.0-0.2.20140607hg585ad5d806bd
 - Update to hg: 585ad5d806bd
 
 * Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - %{pybasever}.1-0.1.20140530hg04d3d67ef5ac
