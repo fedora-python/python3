@@ -4,10 +4,10 @@
 
 %global with_rewheel 1
 
-%global pybasever 3.4
+%global pybasever 3.5
 
 # pybasever without the dot:
-%global pyshortver 34
+%global pyshortver 35
 
 %global pylibdir %{_libdir}/python%{pybasever}
 %global dynload_dir %{pylibdir}/lib-dynload
@@ -39,7 +39,7 @@
 # now has bytecode at:
 #   foo/__pycache__/bar.cpython-34.pyc
 #   foo/__pycache__/bar.cpython-34.pyo
-%global bytecode_suffixes .cpython-34.py?
+%global bytecode_suffixes .cpython-35.py?
 
 # Python's configure script defines SOVERSION, and this is used in the Makefile
 # to determine INSTSONAME, the name of the libpython DSO:
