@@ -73,6 +73,9 @@
 # Turn this to 0 to turn off the "check" phase:
 %global run_selftest_suite 1
 
+# Turn this to 1 to generate the general python3 files such as /usr/bin/python3
+%global global_files 0
+
 # We want to byte-compile the .py files within the packages using the new
 # python3 binary.
 #
@@ -126,9 +129,13 @@
 # Top-level metadata
 # ==================
 Summary: Version 3 of the Python programming language aka Python 3000
+%if 0%{?global_files}
 Name: python3
+%else
+Name: python%{pyshortver}
+%endif
 Version: %{pybasever}.0
-Release:        0.2.20140607hg585ad5d806bd%{?dist}
+Release:        0.3.20140607hg585ad5d806bd%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -187,8 +194,8 @@ BuildRequires: xz-devel
 BuildRequires: zlib-devel
 
 %if 0%{?with_rewheel}
-BuildRequires: python3-setuptools
-BuildRequires: python3-pip
+BuildRequires: %{name}-setuptools
+BuildRequires: %{name}-pip
 %endif
 
 
@@ -206,7 +213,7 @@ Source1: find-provides-without-python-sonames.sh
 
 # Supply various useful macros for building python 3 modules:
 #  __python3, python3_sitelib, python3_sitearch
-Source2: macros.python3
+Source2: macros.%{name}
 
 # Supply an RPM macro "py_byte_compile" for the python3-devel subpackage
 # to enable specfiles to selectively byte-compile individual files and paths
@@ -717,8 +724,8 @@ Provides: python(abi) = %{pybasever}
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 
 %if 0%{with_rewheel}
-Requires: python3-setuptools
-Requires: python3-pip
+Requires: %{name}-setuptools
+Requires: %{name}-pip
 %endif
 
 %description
@@ -1154,7 +1161,7 @@ InstallPython optimized \
 
 install -d -m 0755 ${RPM_BUILD_ROOT}%{pylibdir}/site-packages/__pycache__
 
-mv ${RPM_BUILD_ROOT}%{_bindir}/2to3 ${RPM_BUILD_ROOT}%{_bindir}/python3-2to3
+mv ${RPM_BUILD_ROOT}%{_bindir}/2to3 ${RPM_BUILD_ROOT}%{_bindir}/%{name}-2to3
 
 # Development tools
 install -m755 -d ${RPM_BUILD_ROOT}%{pylibdir}/Tools
@@ -1328,10 +1335,12 @@ done
 # Create "/usr/bin/python3-debug", a symlink to the python3 debug binary, to
 # avoid the user having to know the precise version and ABI flags.  (see
 # e.g. rhbz#676748):
+%if 0%{?global_files}
 %if 0%{?with_debug_build}
 ln -s \
   %{_bindir}/python%{LDVERSION_debug} \
   %{buildroot}%{_bindir}/python3-debug
+%endif
 %endif
 
 #
@@ -1374,6 +1383,19 @@ echo -e '#!/bin/sh\nexec `dirname $0`/python%{LDVERSION_optimized}-`uname -m`-co
 echo '[ $? -eq 127 ] && echo "Could not find python%{LDVERSION_optimized}-`uname -m`-config. Look around to see available arches." >&2' >> \
   %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
   chmod +x %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
+
+
+# Remove things we don't need in nightly builds
+%if ! 0%{?global_files}
+rm -f %{buildroot}%{_bindir}/python3
+rm -f %{buildroot}%{_bindir}/python3-config
+rm -f %{buildroot}%{_bindir}/pydoc3
+rm -f %{buildroot}%{_bindir}/pyvenv
+rm -f %{buildroot}%{_bindir}/idle3
+rm -f %{buildroot}%{_libdir}/pkgconfig/python3.pc
+rm -f %{buildroot}%{_libdir}/libpython3.so
+rm -f %{buildroot}%{_mandir}/man1/python3.1*
+%endif
 
 # ======================================================
 # Running the upstream test suite
@@ -1447,11 +1469,14 @@ rm -fr %{buildroot}
 %files
 %defattr(-, root, root)
 %doc LICENSE README
-%{_bindir}/pydoc*
+%if 0%{?global_files}
+%{_bindir}/pydoc3
 %{_bindir}/python3
+%{_bindir}/pyvenv
+%endif
+%{_bindir}/pydoc%{pybasever}
 %{_bindir}/python%{pybasever}
 %{_bindir}/python%{pybasever}m
-%{_bindir}/pyvenv
 %{_bindir}/pyvenv-%{pybasever}
 %{_mandir}/*/*
 
@@ -1657,7 +1682,10 @@ rm -fr %{buildroot}
 %{_includedir}/python%{LDVERSION_optimized}/%{_pyconfig_h}
 
 %{_libdir}/%{py_INSTSONAME_optimized}
+
+%if 0%{?global_files}
 %{_libdir}/libpython3.so
+%endif
 %if 0%{?with_systemtap}
 %{tapsetdir}/%{libpython_stp_optimized}
 %doc systemtap-example.stp pyfuntop.stp
@@ -1670,22 +1698,29 @@ rm -fr %{buildroot}
 %{_includedir}/python%{LDVERSION_optimized}/*.h
 %exclude %{_includedir}/python%{LDVERSION_optimized}/%{_pyconfig_h}
 %doc Misc/README.valgrind Misc/valgrind-python.supp Misc/gdbinit
+%if 0%{?global_files}
 %{_bindir}/python3-config
+%endif
 %{_bindir}/python%{pybasever}-config
 %{_bindir}/python%{LDVERSION_optimized}-config
 %{_bindir}/python%{LDVERSION_optimized}-*-config
 %{_libdir}/libpython%{LDVERSION_optimized}.so
 %{_libdir}/pkgconfig/python-%{LDVERSION_optimized}.pc
 %{_libdir}/pkgconfig/python-%{pybasever}.pc
+%if 0%{?global_files}
 %{_libdir}/pkgconfig/python3.pc
-%{_rpmconfigdir}/macros.d/macros.python3
+%endif
+%{_rpmconfigdir}/macros.d/macros.%{name}
 %{_rpmconfigdir}/macros.d/macros.pybytecompile
 
 %files tools
 %defattr(-,root,root,755)
-%{_bindir}/python3-2to3
+%if 0%{?global_files}
+%{_bindir}/idle3
+%endif
+%{_bindir}/%{name}-2to3
 %{_bindir}/2to3-%{pybasever}
-%{_bindir}/idle*
+%{_bindir}/idle%{pybasever}
 %{pylibdir}/Tools
 %doc %{pylibdir}/Doc
 
@@ -1698,7 +1733,7 @@ rm -fr %{buildroot}
 %{pylibdir}/__pycache__/turtle*%{bytecode_suffixes}
 %dir %{pylibdir}/turtledemo
 %{pylibdir}/turtledemo/*.py
-%{pylibdir}/turtledemo/*.txt
+#%%{pylibdir}/turtledemo/*.txt
 %{pylibdir}/turtledemo/*.cfg
 %dir %{pylibdir}/turtledemo/__pycache__/
 %{pylibdir}/turtledemo/__pycache__/*%{bytecode_suffixes}
@@ -1730,7 +1765,9 @@ rm -fr %{buildroot}
 
 # Analog of the core subpackage's files:
 %{_bindir}/python%{LDVERSION_debug}
+%if 0%{?global_files}
 %{_bindir}/python3-debug
+%endif
 
 # Analog of the -libs subpackage's files:
 # ...with debug builds of the built-in "extension" modules:
@@ -1841,10 +1878,13 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
-* Sat Jun 07 2014 Miro Hrončok <mhroncok@redhat.com> - %{pybasever}.0-0.2.20140607hg585ad5d806bd
+* Sat Jun 07 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.3.20140607hg585ad5d806bd
+- Bootstraping
+
+* Sat Jun 07 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.2.20140607hg585ad5d806bd
 - Update to hg: 585ad5d806bd
 
-* Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - %{pybasever}.1-0.1.20140530hg04d3d67ef5ac
+* Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.1.20140530hg04d3d67ef5ac
 - Update to hg: 04d3d67ef5ac
 
 * Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - 3.4.1-8
