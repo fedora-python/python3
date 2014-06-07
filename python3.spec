@@ -75,7 +75,7 @@
 
 # We want to byte-compile the .py files within the packages using the new
 # python3 binary.
-# 
+#
 # Unfortunately, rpmbuild's infrastructure requires us to jump through some
 # hoops to avoid byte-compiling with the system python 2 version:
 #   /usr/lib/rpm/redhat/macros sets up build policy that (amongst other things)
@@ -88,7 +88,7 @@
   %{!?__debug_package:/usr/lib/rpm/brp-strip %{__strip}} \
   /usr/lib/rpm/brp-strip-static-archive %{__strip} \
   /usr/lib/rpm/brp-strip-comment-note %{__strip} %{__objdump} \
-  /usr/lib/rpm/brp-python-hardlink 
+  /usr/lib/rpm/brp-python-hardlink
 # to remove the invocation of brp-python-bytecompile, whilst keeping the
 # invocation of brp-python-hardlink (since this should still work for python3
 # pyc/pyo files)
@@ -128,7 +128,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
 Version: %{pybasever}.1
-Release: 8%{?dist}
+Release:        0.2.20140607hg585ad5d806bd%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -196,7 +196,7 @@ BuildRequires: python3-pip
 # Source code and patches
 # =======================
 
-Source: http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.xz
+Source0:        python3-nightly-585ad5d806bd.tar
 
 # Avoid having various bogus auto-generated Provides lines for the various
 # python c modules' SONAMEs:
@@ -749,7 +749,7 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Conflicts: %{name} < %{version}-%{release}
 
 %description devel
-This package contains libraries and header files used to build applications 
+This package contains libraries and header files used to build applications
 with and native libraries for Python 3
 
 %package tools
@@ -822,7 +822,7 @@ can load its own extensions.
 # ======================================================
 
 %prep
-%setup -q -n Python-%{version}%{?prerel}
+%setup -q -n python3-nightly
 chmod +x %{SOURCE1}
 
 %if 0%{?with_systemtap}
@@ -1012,7 +1012,7 @@ exit 1
 # Define a function, for how to perform a "build" of python for a given
 # configuration:
 BuildPython() {
-  ConfName=$1	      
+  ConfName=$1
   BinaryName=$2
   SymlinkName=$3
   ExtraConfigArgs=$4
@@ -1092,7 +1092,7 @@ mkdir -p %{buildroot}%{_prefix} %{buildroot}%{_mandir}
 
 InstallPython() {
 
-  ConfName=$1	      
+  ConfName=$1
   PyInstSoName=$2
 
   ConfDir=build/$ConfName
@@ -1275,7 +1275,7 @@ find %{buildroot}/ -name \*.py -exec sed -i 's/\r//' {} \;
 # Fix an encoding:
 iconv -f iso8859-1 -t utf-8 %{buildroot}/%{pylibdir}/Demo/rpc/README > README.conv && mv -f README.conv %{buildroot}/%{pylibdir}/Demo/rpc/README
 
-# Note that 
+# Note that
 #  %{pylibdir}/Demo/distutils/test2to3/setup.py
 # is in iso-8859-1 encoding, and that this is deliberate; this is test data
 # for the 2to3 tool, and one of the functions of the 2to3 tool is to fixup
@@ -1316,7 +1316,7 @@ for Module in %{buildroot}/%{dynload_dir}/*.so ; do
     *.%{SOABI_debug})
         ldd $Module | grep %{py_INSTSONAME_optimized} &&
             (echo Debug module $Module linked against optimized %{py_INSTSONAME_optimized} ; exit 1)
-            
+
         ;;
     *.%{SOABI_optimized})
         ldd $Module | grep %{py_INSTSONAME_debug} &&
@@ -1390,7 +1390,7 @@ find %{buildroot} -type f -a -name "*.py" -print0 | \
 
 topdir=$(pwd)
 CheckPython() {
-  ConfName=$1	      
+  ConfName=$1
   ConfDir=$(pwd)/build/$ConfName
 
   echo STARTING: CHECKING OF PYTHON FOR CONFIGURATION: $ConfName
@@ -1824,15 +1824,15 @@ rm -fr %{buildroot}
 
 # We put the debug-gdb.py file inside /usr/lib/debug to avoid noise from
 # ldconfig (rhbz:562980).
-# 
+#
 # The /usr/lib/rpm/redhat/macros defines %__debug_package to use
 # debugfiles.list, and it appears that everything below /usr/lib/debug and
 # (/usr/src/debug) gets added to this file (via LISTFILES) in
 # /usr/lib/rpm/find-debuginfo.sh
-# 
+#
 # Hence by installing it below /usr/lib/debug we ensure it is added to the
 # -debuginfo subpackage
-# (if it doesn't, then the rpmbuild ought to fail since the debug-gdb.py 
+# (if it doesn't, then the rpmbuild ought to fail since the debug-gdb.py
 # payload file would be unpackaged)
 
 
@@ -1841,6 +1841,12 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Sat Jun 07 2014 Miro Hrončok <mhroncok@redhat.com> - %{pybasever}.1-0.2.20140607hg585ad5d806bd
+- Update to hg: 585ad5d806bd
+
+* Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - %{pybasever}.1-0.1.20140530hg04d3d67ef5ac
+- Update to hg: 04d3d67ef5ac
+
 * Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - 3.4.1-8
 - In config script, use uname -m to write the arch
 
@@ -2140,7 +2146,7 @@ ppc to avoid aliasing violations (patch 130; rhbz#698726)
 - add %%python3_version to the rpm macros (rhbz#719082)
 
 * Mon Jul 11 2011 Dennis Gilmore <dennis@ausil.us> - 3.2.1-2
-- disable some tests on sparc arches 
+- disable some tests on sparc arches
 
 * Mon Jul 11 2011 David Malcolm <dmalcolm@redhat.com> - 3.2.1-1
 - 3.2.1; refresh lib64 patch (102), subprocess unit test patch (129), disabling
