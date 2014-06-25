@@ -1083,6 +1083,7 @@ BuildPython() {
   popd
   echo FINISHED: BUILD OF PYTHON FOR CONFIGURATION: $ConfDir
 }
+export -f BuildPython
 
 # Use "BuildPython" to support building with different configurations:
 
@@ -1450,6 +1451,7 @@ CheckPython() {
   echo FINISHED: CHECKING OF PYTHON FOR CONFIGURATION: $ConfName
 
 }
+export -f CheckPython
 
 %if 0%{run_selftest_suite}
 
