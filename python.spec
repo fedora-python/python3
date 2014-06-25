@@ -1,6 +1,10 @@
 # ======================================================
 # Conditionals and other variables controlling the build
 # ======================================================
+%{!?scl:%global pkg_name %{name}}
+%{?scl:%scl_package python}
+# Turn off default SCL bytecompiling.
+%{?scl:%global _turn_off_bytecompile 1}
 
 %global with_rewheel 1
 
@@ -39,7 +43,7 @@
 # now has bytecode at:
 #   foo/__pycache__/bar.cpython-34.pyc
 #   foo/__pycache__/bar.cpython-34.pyo
-%global bytecode_suffixes .cpython-35.py?
+%global bytecode_suffixes .cpython-%{pyshortver}.py?
 
 # Python's configure script defines SOVERSION, and this is used in the Makefile
 # to determine INSTSONAME, the name of the libpython DSO:
@@ -73,9 +77,6 @@
 # Turn this to 0 to turn off the "check" phase:
 %global run_selftest_suite 1
 
-# Turn this to 1 to generate the general python3 files such as /usr/bin/python3
-%global global_files 0
-
 # We want to byte-compile the .py files within the packages using the new
 # python3 binary.
 #
@@ -87,11 +88,12 @@
 # (/usr/bin/python, rather than the freshly built python), thus leading to
 # numerous syntax errors, and incorrect magic numbers in the .pyc files.  We
 # thus override __os_install_post to avoid invoking this script:
-%global __os_install_post /usr/lib/rpm/brp-compress \
-  %{!?__debug_package:/usr/lib/rpm/brp-strip %{__strip}} \
-  /usr/lib/rpm/brp-strip-static-archive %{__strip} \
-  /usr/lib/rpm/brp-strip-comment-note %{__strip} %{__objdump} \
-  /usr/lib/rpm/brp-python-hardlink
+%global __os_install_post /usr/lib/rpm/brp-%{?scl:scl-}compress %{?_scl_root} \
+  %{!?__debug_package:/usr/lib/rpm/redhat/brp-strip %{__strip}} \
+  /usr/lib/rpm/redhat/brp-strip-static-archive %{__strip} \
+  /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} \
+  /usr/lib/rpm/redhat/brp-python-hardlink
+
 # to remove the invocation of brp-python-bytecompile, whilst keeping the
 # invocation of brp-python-hardlink (since this should still work for python3
 # pyc/pyo files)
@@ -129,13 +131,9 @@
 # Top-level metadata
 # ==================
 Summary: Version 3 of the Python programming language aka Python 3000
-%if 0%{?global_files}
-Name: python3
-%else
-Name: python%{pyshortver}
-%endif
+Name: %{?scl_prefix}python
 Version: %{pybasever}.0
-Release:        0.3.20140607hg585ad5d806bd%{?dist}
+Release:        0.1.20140618hg1e74350dd056%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -146,6 +144,7 @@ Group: Development/Languages
 
 # (keep this list alphabetized)
 
+%{?scl:BuildRequires: %{scl}-runtime}
 BuildRequires: autoconf
 BuildRequires: bluez-libs-devel
 BuildRequires: bzip2
@@ -203,7 +202,7 @@ BuildRequires: %{name}-pip
 # Source code and patches
 # =======================
 
-Source0:        python3-nightly-585ad5d806bd.tar
+Source0:        python3-nightly-1e74%{pyshortver}0dd056.tar
 
 # Avoid having various bogus auto-generated Provides lines for the various
 # python c modules' SONAMEs:
@@ -237,6 +236,13 @@ Source7: pyfuntop.stp
 # Run in check section with Python that is currently being built
 # Written by bkabrda
 Source8: check-pyc-and-pyo-timestamps.py
+
+# SCL-custom version of pythondeps.sh
+# Append %%{pyshortver} to not collide with python27 or python33 SCL
+Source9: pythondeps-scl-%{pyshortver}.sh
+
+# Append %%{pyshortver} for the same reason here
+Source10: brp-python-bytecompile-with-scl-python-%{pyshortver}
 
 # Fixup distutils/unixccompiler.py to remove standard library path from rpath:
 # Was Patch0 in ivazquez' python3000 specfile:
@@ -718,10 +724,17 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 URL: http://www.python.org/
 
-# See notes in bug 532118:
-Provides: python(abi) = %{pybasever}
+# filter pkgconfig and python(abi) Requires/Provides
+%{?scl:%filter_from_requires s|python(abi)|%{?scl_prefix}python(abi)|g}
+%{?scl:%filter_from_provides s|pkgconfig(|%{?scl_prefix}pkgconfig(|g}
+%{?scl:%filter_from_provides s|/usr/lib.*/python||g}
+%{?scl:%filter_setup}
 
-Requires: %{name}-libs%{?_isa} = %{version}-%{release}
+# See notes in bug 532118:
+Provides: %{?scl_prefix}python(abi) = %{pybasever}
+
+Requires: %{?scl_prefix}%{pkg_name}-libs%{?_isa} = %{version}-%{release}
+%{?scl:Requires: %{scl}-runtime}
 
 %if 0%{with_rewheel}
 Requires: %{name}-setuptools
@@ -737,6 +750,7 @@ considerably, and a lot of deprecated features have finally been removed.
 %package libs
 Summary:        Python 3 runtime libraries
 Group:          Development/Libraries
+%{?scl:Requires:       %{scl}-runtime}
 #Requires:       %{name} = %{version}-%{release}
 
 # expat 2.1.0 added the symbol XML_SetHashSalt without bumping SONAME.  We use
@@ -751,9 +765,10 @@ This package contains files used to embed Python 3 into applications.
 %package devel
 Summary: Libraries and header files needed for Python 3 development
 Group: Development/Libraries
-Requires: %{name} = %{version}-%{release}
-Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-Conflicts: %{name} < %{version}-%{release}
+
+Requires: %{?scl_prefix}%{pkg_name} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name}-libs%{?_isa} = %{version}-%{release}
+Conflicts: %{?scl_prefix}%{pkg_name} < %{version}-%{release}
 
 %description devel
 This package contains libraries and header files used to build applications
@@ -762,8 +777,9 @@ with and native libraries for Python 3
 %package tools
 Summary: A collection of tools included with Python 3
 Group: Development/Tools
-Requires: %{name} = %{version}-%{release}
-Requires: %{name}-tkinter = %{version}-%{release}
+
+Requires: %{?scl_prefix}%{pkg_name} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name}-tkinter = %{version}-%{release}
 
 %description tools
 This package contains several tools included with Python 3
@@ -771,7 +787,7 @@ This package contains several tools included with Python 3
 %package tkinter
 Summary: A GUI toolkit for Python 3
 Group: Development/Languages
-Requires: %{name} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name} = %{version}-%{release}
 
 %description tkinter
 The Tkinter (Tk interface) program is an graphical user interface for
@@ -780,8 +796,8 @@ the Python scripting language.
 %package test
 Summary: The test modules from the main python 3 package
 Group: Development/Languages
-Requires: %{name} = %{version}-%{release}
-Requires: %{name}-tools = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name}-tools = %{version}-%{release}
 
 %description test
 The test modules from the main %{name} package.
@@ -799,12 +815,12 @@ Group: Applications/System
 # The debug build is an all-in-one package version of the regular build, and
 # shares the same .py/.pyc files and directories as the regular build.  Hence
 # we depend on all of the subpackages of the regular build:
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-Requires: %{name}-devel%{?_isa} = %{version}-%{release}
-Requires: %{name}-test%{?_isa} = %{version}-%{release}
-Requires: %{name}-tkinter%{?_isa} = %{version}-%{release}
-Requires: %{name}-tools%{?_isa} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name}%{?_isa} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name}-libs%{?_isa} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name}-devel%{?_isa} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name}-test%{?_isa} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name}-tkinter%{?_isa} = %{version}-%{release}
+Requires: %{?scl_prefix}%{pkg_name}-tools%{?_isa} = %{version}-%{release}
 
 %description debug
 python3-debug provides a version of the Python 3 runtime with numerous debugging
@@ -1070,6 +1086,7 @@ BuildPython() {
 
 # Use "BuildPython" to support building with different configurations:
 
+%{?scl:scl enable %scl - << \EOF}
 %if 0%{?with_debug_build}
 BuildPython debug \
   python-debug \
@@ -1087,6 +1104,7 @@ BuildPython optimized \
   python%{pybasever} \
   "--without-ensurepip" \
   true
+%{?scl:EOF}
 
 # ======================================================
 # Installing the built code:
@@ -1096,6 +1114,11 @@ BuildPython optimized \
 topdir=$(pwd)
 rm -fr %{buildroot}
 mkdir -p %{buildroot}%{_prefix} %{buildroot}%{_mandir}
+
+# install SCL custom RPM scripts
+%{?scl:mkdir -p %{buildroot}%{_root_prefix}/lib/rpm/redhat}
+%{?scl:cp -a %{SOURCE9} %{buildroot}%{_root_prefix}/lib/rpm}
+%{?scl:cp -a %{SOURCE10} %{buildroot}%{_root_prefix}/lib/rpm/redhat}
 
 InstallPython() {
 
@@ -1137,7 +1160,7 @@ make install DESTDIR=%{buildroot} INSTALL="install -p"
   # but doing so generated noise when ldconfig was rerun (rhbz:562980)
   #
 %if 0%{?with_gdb_hooks}
-  DirHoldingGdbPy=%{_prefix}/lib/debug/%{_libdir}
+  DirHoldingGdbPy=%{?scl:%_root_prefix}%{!?scl:%_prefix}/lib/debug/%{_libdir}
   PathOfGdbPy=$DirHoldingGdbPy/$PyInstSoName.debug-gdb.py
 
   mkdir -p %{buildroot}$DirHoldingGdbPy
@@ -1306,9 +1329,15 @@ find %{buildroot} \
     -perm 555 -exec chmod 755 {} \;
 
 # Install macros for rpm:
-mkdir -p %{buildroot}/%{_rpmconfigdir}/macros.d/
-install -m 644 %{SOURCE2} %{buildroot}/%{_rpmconfigdir}/macros.d/
-install -m 644 %{SOURCE3} %{buildroot}/%{_rpmconfigdir}/macros.d/
+mkdir -p %{buildroot}/%{?scl:%_root_sysconfdir}%{!?scl:%_sysconfdir}/rpm
+install -m 644 %{SOURCE2} %{buildroot}/%{?scl:%_root_sysconfdir}%{!?scl:%_sysconfdir}/rpm
+install -m 644 %{SOURCE3} %{buildroot}/%{?scl:%_root_sysconfdir}%{!?scl:%_sysconfdir}/rpm
+# Optionally rename macro files by appending scl name
+pushd %{buildroot}/%{?scl:%_root_sysconfdir}%{!?scl:%_sysconfdir}
+find -type f -name 'macros.py*' -exec mv {} {}%{?scl:.%{scl}} \;
+popd
+%{?scl:sed -i 's|^\(%@scl@__python3\)|\1 %{_bindir}/python3|' %{buildroot}%{_root_sysconfdir}/rpm/macros.python3.%{scl}}
+%{?scl:sed -i 's|@scl@|%{scl}|g' %{buildroot}%{_root_sysconfdir}/rpm/macros.python3.%{scl}}
 
 # Ensure that the curses module was linked against libncursesw.so, rather than
 # libncurses.so (bug 539917)
@@ -1335,12 +1364,10 @@ done
 # Create "/usr/bin/python3-debug", a symlink to the python3 debug binary, to
 # avoid the user having to know the precise version and ABI flags.  (see
 # e.g. rhbz#676748):
-%if 0%{?global_files}
 %if 0%{?with_debug_build}
 ln -s \
   %{_bindir}/python%{LDVERSION_debug} \
   %{buildroot}%{_bindir}/python3-debug
-%endif
 %endif
 
 #
@@ -1384,19 +1411,6 @@ echo '[ $? -eq 127 ] && echo "Could not find python%{LDVERSION_optimized}-`uname
   %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
   chmod +x %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
 
-
-# Remove things we don't need in nightly builds
-%if ! 0%{?global_files}
-rm -f %{buildroot}%{_bindir}/python3
-rm -f %{buildroot}%{_bindir}/python3-config
-rm -f %{buildroot}%{_bindir}/pydoc3
-rm -f %{buildroot}%{_bindir}/pyvenv
-rm -f %{buildroot}%{_bindir}/idle3
-rm -f %{buildroot}%{_libdir}/pkgconfig/python3.pc
-rm -f %{buildroot}%{_libdir}/libpython3.so
-rm -f %{buildroot}%{_mandir}/man1/python3.1*
-%endif
-
 # ======================================================
 # Running the upstream test suite
 # ======================================================
@@ -1439,11 +1453,13 @@ CheckPython() {
 
 %if 0%{run_selftest_suite}
 
+%{?scl:scl enable %scl - << \EOF}
 # Check each of the configurations:
 %if 0%{?with_debug_build}
 CheckPython debug
 %endif # with_debug_build
 CheckPython optimized
+%{?scl:EOF}
 
 %endif # run_selftest_suite
 
@@ -1469,11 +1485,9 @@ rm -fr %{buildroot}
 %files
 %defattr(-, root, root)
 %doc LICENSE README
-%if 0%{?global_files}
 %{_bindir}/pydoc3
 %{_bindir}/python3
 %{_bindir}/pyvenv
-%endif
 %{_bindir}/pydoc%{pybasever}
 %{_bindir}/python%{pybasever}
 %{_bindir}/python%{pybasever}m
@@ -1682,42 +1696,38 @@ rm -fr %{buildroot}
 %{_includedir}/python%{LDVERSION_optimized}/%{_pyconfig_h}
 
 %{_libdir}/%{py_INSTSONAME_optimized}
-
-%if 0%{?global_files}
 %{_libdir}/libpython3.so
-%endif
 %if 0%{?with_systemtap}
+%{?scl:%dir %{_datadir}/systemtap}
+%{?scl:%dir %{tapsetdir}}
 %{tapsetdir}/%{libpython_stp_optimized}
 %doc systemtap-example.stp pyfuntop.stp
 %endif
 
 %files devel
 %defattr(-,root,root)
+%{?scl:%{_root_prefix}/lib/rpm/pythondeps-scl-%{pyshortver}.sh}
+%{?scl:%{_root_prefix}/lib/rpm/redhat/brp-python-bytecompile-with-scl-python-%{pyshortver}}
 %{pylibdir}/config-%{LDVERSION_optimized}/*
 %exclude %{pylibdir}/config-%{LDVERSION_optimized}/Makefile
 %{_includedir}/python%{LDVERSION_optimized}/*.h
 %exclude %{_includedir}/python%{LDVERSION_optimized}/%{_pyconfig_h}
 %doc Misc/README.valgrind Misc/valgrind-python.supp Misc/gdbinit
-%if 0%{?global_files}
 %{_bindir}/python3-config
-%endif
 %{_bindir}/python%{pybasever}-config
 %{_bindir}/python%{LDVERSION_optimized}-config
 %{_bindir}/python%{LDVERSION_optimized}-*-config
 %{_libdir}/libpython%{LDVERSION_optimized}.so
+%{?scl:%dir %{_libdir}/pkgconfig}
 %{_libdir}/pkgconfig/python-%{LDVERSION_optimized}.pc
 %{_libdir}/pkgconfig/python-%{pybasever}.pc
-%if 0%{?global_files}
 %{_libdir}/pkgconfig/python3.pc
-%endif
-%{_rpmconfigdir}/macros.d/macros.%{name}
-%{_rpmconfigdir}/macros.d/macros.pybytecompile
+%config(noreplace) %{?scl:%_root_sysconfdir}%{!?scl:%_sysconfdir}/rpm/macros.python3%{?scl:.%{scl}}
+%config(noreplace) %{?scl:%_root_sysconfdir}%{!?scl:%_sysconfdir}/rpm/macros.pybytecompile%{?scl:.%{scl}}
 
 %files tools
 %defattr(-,root,root,755)
-%if 0%{?global_files}
 %{_bindir}/idle3
-%endif
 %{_bindir}/%{name}-2to3
 %{_bindir}/2to3-%{pybasever}
 %{_bindir}/idle%{pybasever}
@@ -1765,9 +1775,7 @@ rm -fr %{buildroot}
 
 # Analog of the core subpackage's files:
 %{_bindir}/python%{LDVERSION_debug}
-%if 0%{?global_files}
 %{_bindir}/python3-debug
-%endif
 
 # Analog of the -libs subpackage's files:
 # ...with debug builds of the built-in "extension" modules:
@@ -1878,14 +1886,8 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
-* Sat Jun 07 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.3.20140607hg585ad5d806bd
-- Bootstraping
-
-* Sat Jun 07 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.2.20140607hg585ad5d806bd
-- Update to hg: 585ad5d806bd
-
-* Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.1.20140530hg04d3d67ef5ac
-- Update to hg: 04d3d67ef5ac
+* Wed Jun 18 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.1.20140618hg1e74350dd056
+- Update to hg: 1e74350dd0561
 
 * Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - 3.4.1-8
 - In config script, use uname -m to write the arch
