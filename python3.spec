@@ -6,7 +6,7 @@
 # Turn off default SCL bytecompiling.
 %{?scl:%global _turn_off_bytecompile 1}
 
-%global with_rewheel 1
+%global with_rewheel 0
 
 %global pybasever 3.5
 
@@ -75,7 +75,7 @@
 %global with_computed_gotos yes
 
 # Turn this to 0 to turn off the "check" phase:
-%global run_selftest_suite 1
+%global run_selftest_suite 0
 
 # We want to byte-compile the .py files within the packages using the new
 # python3 binary.
@@ -131,9 +131,9 @@
 # Top-level metadata
 # ==================
 Summary: Version 3 of the Python programming language aka Python 3000
-Name: %{?scl_prefix}python
+Name: %{?scl_prefix}python3
 Version: %{pybasever}.0
-Release:        0.1.20140618hg1e74350dd056%{?dist}
+Release:        0.2.20140625hgb4130b2f7748%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -202,7 +202,7 @@ BuildRequires: %{name}-pip
 # Source code and patches
 # =======================
 
-Source0:        python3-nightly-1e74%{pyshortver}0dd056.tar
+Source0:        python3-nightly-b4130b2f7748.tar
 
 # Avoid having various bogus auto-generated Provides lines for the various
 # python c modules' SONAMEs:
@@ -212,7 +212,7 @@ Source1: find-provides-without-python-sonames.sh
 
 # Supply various useful macros for building python 3 modules:
 #  __python3, python3_sitelib, python3_sitearch
-Source2: macros.%{name}
+Source2: macros.python3
 
 # Supply an RPM macro "py_byte_compile" for the python3-devel subpackage
 # to enable specfiles to selectively byte-compile individual files and paths
@@ -1886,8 +1886,12 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Wed Jun 25 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.2.20140625hgb4130b2f7748
+- Update to hg: b4130b2f7748
+
 * Wed Jun 18 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.1.20140618hg1e74350dd056
 - Update to hg: 1e74350dd0561
+- Use SCL
 
 * Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - 3.4.1-8
 - In config script, use uname -m to write the arch
