@@ -177,7 +177,7 @@ BuildRequires: sqlite-devel
 BuildRequires: systemtap-sdt-devel
 # (this introduces a dependency on "python", in that systemtap-sdt-devel's
 # /usr/bin/dtrace is a python 2 script)
-%global tapsetdir      /usr/share/systemtap/tapset
+%global tapsetdir      %{_datadir}/systemtap/tapset
 %endif # with_systemtap
 
 BuildRequires: tar
@@ -725,10 +725,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 URL: http://www.python.org/
 
 # filter pkgconfig and python(abi) Requires/Provides
-#%%{?scl:%%filter_from_requires s|python(abi)|%{?scl_prefix}python(abi)|g}
-#%%{?scl:%%filter_from_provides s|pkgconfig(|%{?scl_prefix}pkgconfig(|g}
-#%%{?scl:%%filter_from_provides s|/usr/lib.*/python||g}
-#%%{?scl:%%filter_setup}
+%{?scl:%filter_from_requires s|python(abi)|%{?scl_prefix}python(abi)|g}
+%{?scl:%filter_from_provides s|pkgconfig(|%{?scl_prefix}pkgconfig(|g}
+%{?scl:%filter_from_provides s|/usr/lib.*/python||g}
+%{?scl:%filter_setup}
 
 # See notes in bug 532118:
 Provides: %{?scl_prefix}python(abi) = %{pybasever}
@@ -1206,7 +1206,7 @@ cp -ar Tools/demo %{buildroot}%{pylibdir}/Tools/
 rm -f %{buildroot}%{pylibdir}/email/test/data/audiotest.au %{buildroot}%{pylibdir}/test/audiotest.au
 
 %if "%{_lib}" == "lib64"
-install -d -m 0755 %{buildroot}/usr/lib/python%{pybasever}/site-packages/__pycache__
+install -d -m 0755 %{buildroot}%{_prefix}/lib/python%{pybasever}/site-packages/__pycache__
 %endif
 
 # Make python3-devel multilib-ready (bug #192747, #139911)
