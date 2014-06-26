@@ -2,7 +2,7 @@
 # Conditionals and other variables controlling the build
 # ======================================================
 %{!?scl:%global pkg_name %{name}}
-%{?scl:%scl_package python}
+%{?scl:%scl_package python3}
 # Turn off default SCL bytecompiling.
 %{?scl:%global _turn_off_bytecompile 1}
 
@@ -133,7 +133,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: %{?scl_prefix}python3
 Version: %{pybasever}.0
-Release:        0.2.20140625hgb4130b2f7748%{?dist}
+Release:        0.3.20140626hg3151f6f9df85%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -193,8 +193,8 @@ BuildRequires: xz-devel
 BuildRequires: zlib-devel
 
 %if 0%{?with_rewheel}
-BuildRequires: %{name}-setuptools
-BuildRequires: %{name}-pip
+BuildRequires: %{?scl_prefix}%{pkg_name}-setuptools
+BuildRequires: %{?scl_prefix}%{pkg_name}-pip
 %endif
 
 
@@ -202,7 +202,7 @@ BuildRequires: %{name}-pip
 # Source code and patches
 # =======================
 
-Source0:        python3-nightly-b4130b2f7748.tar
+Source0:        python3-nightly-3151f6f9df85.tar
 
 # Avoid having various bogus auto-generated Provides lines for the various
 # python c modules' SONAMEs:
@@ -725,10 +725,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 URL: http://www.python.org/
 
 # filter pkgconfig and python(abi) Requires/Provides
-%{?scl:%filter_from_requires s|python(abi)|%{?scl_prefix}python(abi)|g}
-%{?scl:%filter_from_provides s|pkgconfig(|%{?scl_prefix}pkgconfig(|g}
-%{?scl:%filter_from_provides s|/usr/lib.*/python||g}
-%{?scl:%filter_setup}
+#%%{?scl:%%filter_from_requires s|python(abi)|%{?scl_prefix}python(abi)|g}
+#%%{?scl:%%filter_from_provides s|pkgconfig(|%{?scl_prefix}pkgconfig(|g}
+#%%{?scl:%%filter_from_provides s|/usr/lib.*/python||g}
+#%%{?scl:%%filter_setup}
 
 # See notes in bug 532118:
 Provides: %{?scl_prefix}python(abi) = %{pybasever}
@@ -737,8 +737,8 @@ Requires: %{?scl_prefix}%{pkg_name}-libs%{?_isa} = %{version}-%{release}
 %{?scl:Requires: %{scl}-runtime}
 
 %if 0%{with_rewheel}
-Requires: %{name}-setuptools
-Requires: %{name}-pip
+Requires: %{?scl_prefix}%{pkg_name}-setuptools
+Requires: %{?scl_prefix}%{pkg_name}-pip
 %endif
 
 %description
@@ -800,7 +800,7 @@ Requires: %{?scl_prefix}%{pkg_name} = %{version}-%{release}
 Requires: %{?scl_prefix}%{pkg_name}-tools = %{version}-%{release}
 
 %description test
-The test modules from the main %{name} package.
+The test modules from the main %{?scl_prefix}%{pkg_name} package.
 These are in a separate package to save space, as they are almost never used
 in production.
 
@@ -1000,7 +1000,7 @@ sed --in-place \
 # ======================================================
 
 %build
-topdir=$(pwd)
+export topdir=$(pwd)
 export CFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -fPIC -fwrapv"
 export CXXFLAGS="$RPM_OPT_FLAGS -D_GNU_SOURCE -fPIC -fwrapv"
 export CPPFLAGS="`pkg-config --cflags-only-I libffi`"
@@ -1185,7 +1185,7 @@ InstallPython optimized \
 
 install -d -m 0755 ${RPM_BUILD_ROOT}%{pylibdir}/site-packages/__pycache__
 
-mv ${RPM_BUILD_ROOT}%{_bindir}/2to3 ${RPM_BUILD_ROOT}%{_bindir}/%{name}-2to3
+mv ${RPM_BUILD_ROOT}%{_bindir}/2to3 ${RPM_BUILD_ROOT}%{_bindir}/python3-2to3
 
 # Development tools
 install -m755 -d ${RPM_BUILD_ROOT}%{pylibdir}/Tools
@@ -1425,7 +1425,7 @@ find %{buildroot} -type f -a -name "*.py" -print0 | \
     xargs -0 %{buildroot}%{_bindir}/python%{pybasever} %{SOURCE8}
 
 
-topdir=$(pwd)
+export topdir=$(pwd)
 CheckPython() {
   ConfName=$1
   ConfDir=$(pwd)/build/$ConfName
@@ -1730,7 +1730,7 @@ rm -fr %{buildroot}
 %files tools
 %defattr(-,root,root,755)
 %{_bindir}/idle3
-%{_bindir}/%{name}-2to3
+%{_bindir}/python3-2to3
 %{_bindir}/2to3-%{pybasever}
 %{_bindir}/idle%{pybasever}
 %{pylibdir}/Tools
@@ -1745,7 +1745,7 @@ rm -fr %{buildroot}
 %{pylibdir}/__pycache__/turtle*%{bytecode_suffixes}
 %dir %{pylibdir}/turtledemo
 %{pylibdir}/turtledemo/*.py
-#%%{pylibdir}/turtledemo/*.txt
+%{pylibdir}/turtledemo/*.txt
 %{pylibdir}/turtledemo/*.cfg
 %dir %{pylibdir}/turtledemo/__pycache__/
 %{pylibdir}/turtledemo/__pycache__/*%{bytecode_suffixes}
@@ -1888,6 +1888,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Thu Jun 26 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.3.20140626hg3151f6f9df85
+- Update to hg: 3151f6f9df85
+
 * Wed Jun 25 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.2.20140625hgb4130b2f7748
 - Update to hg: b4130b2f7748
 
