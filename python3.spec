@@ -137,7 +137,8 @@ Release:        0.3.20140626hg3151f6f9df85%{?dist}
 License: Python
 Group: Development/Languages
 
-%global __provides_exclude ^pkgconfig
+%{?scl:%global __provides_exclude ^pkgconfig}
+%{?scl:%global __requires_exclude ^python\\(abi}
 
 # =======================
 # Build-time requirements
@@ -727,6 +728,9 @@ URL: http://www.python.org/
 
 # See notes in bug 532118:
 Provides: %{?scl_prefix}python(abi) = %{pybasever}
+
+# This should not be here! It's an ugly workaround for prov/req filtering
+Provides: python(abi) = %{pybasever}
 
 Requires: %{?scl_prefix}%{pkg_name}-libs%{?_isa} = %{version}-%{release}
 %{?scl:Requires: %{scl}-runtime}
