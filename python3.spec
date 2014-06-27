@@ -6,7 +6,7 @@
 # Turn off default SCL bytecompiling.
 %{?scl:%global _turn_off_bytecompile 1}
 
-%global with_rewheel 0
+%global with_rewheel 1
 
 %global pybasever 3.5
 
@@ -75,7 +75,7 @@
 %global with_computed_gotos yes
 
 # Turn this to 0 to turn off the "check" phase:
-%global run_selftest_suite 0
+%global run_selftest_suite 1
 
 # We want to byte-compile the .py files within the packages using the new
 # python3 binary.
@@ -133,7 +133,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: %{?scl_prefix}python3
 Version: %{pybasever}.0
-Release:        0.3.20140626hg3151f6f9df85%{?dist}
+Release:        0.5.20140628hg26287c059304%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -204,7 +204,7 @@ BuildRequires: %{?scl_prefix}%{pkg_name}-pip
 # Source code and patches
 # =======================
 
-Source0:        python3-nightly-3151f6f9df85.tar
+Source0:        python3-nightly-26287c059304.tar
 
 # Avoid having various bogus auto-generated Provides lines for the various
 # python c modules' SONAMEs:
@@ -1891,6 +1891,12 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Sat Jun 28 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.5.20140628hg26287c059304
+- Update to hg: 26287c059304
+
+* Fri Jun 27 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.4.20140626hg3151f6f9df85
+- Bootstrapping
+
 * Thu Jun 26 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.3.20140626hg3151f6f9df85
 - Update to hg: 3151f6f9df85
 
