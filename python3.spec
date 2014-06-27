@@ -89,10 +89,10 @@
 # numerous syntax errors, and incorrect magic numbers in the .pyc files.  We
 # thus override __os_install_post to avoid invoking this script:
 %global __os_install_post /usr/lib/rpm/brp-%{?scl:scl-}compress %{?_scl_root} \
-  %{!?__debug_package:/usr/lib/rpm/redhat/brp-strip %{__strip}} \
-  /usr/lib/rpm/redhat/brp-strip-static-archive %{__strip} \
-  /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} \
-  /usr/lib/rpm/redhat/brp-python-hardlink
+  %{!?__debug_package:/usr/lib/rpm/brp-strip %{__strip}} \
+  /usr/lib/rpm/brp-strip-static-archive %{__strip} \
+  /usr/lib/rpm/brp-strip-comment-note %{__strip} %{__objdump} \
+  /usr/lib/rpm/brp-python-hardlink
 
 # to remove the invocation of brp-python-bytecompile, whilst keeping the
 # invocation of brp-python-hardlink (since this should still work for python3
