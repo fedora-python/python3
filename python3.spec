@@ -137,6 +137,7 @@ Release:        0.3.20140626hg3151f6f9df85%{?dist}
 License: Python
 Group: Development/Languages
 
+%global __provides_exclude ^pkgconfig
 
 # =======================
 # Build-time requirements
@@ -724,12 +725,6 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 
 URL: http://www.python.org/
 
-# filter pkgconfig and python(abi) Requires/Provides
-%{?scl:%filter_from_requires s|python(abi)|%{?scl_prefix}python(abi)|g}
-%{?scl:%filter_from_provides s|pkgconfig(|%{?scl_prefix}pkgconfig(|g}
-%{?scl:%filter_from_provides s|/usr/lib.*/python||g}
-%{?scl:%filter_setup}
-
 # See notes in bug 532118:
 Provides: %{?scl_prefix}python(abi) = %{pybasever}
 
@@ -769,6 +764,10 @@ Group: Development/Libraries
 Requires: %{?scl_prefix}%{pkg_name} = %{version}-%{release}
 Requires: %{?scl_prefix}%{pkg_name}-libs%{?_isa} = %{version}-%{release}
 Conflicts: %{?scl_prefix}%{pkg_name} < %{version}-%{release}
+
+%{?scl:Provides: %{?scl_prefix}pkgconfig(%{pkg_name}) = %{pybasever}}
+%{?scl:Provides: %{?scl_prefix}pkgconfig(python-%{pybasever}) = %{pybasever}}
+%{?scl:Provides: %{?scl_prefix}pkgconfig(python-%{pybasever}m) = %{pybasever}}
 
 %description devel
 This package contains libraries and header files used to build applications
