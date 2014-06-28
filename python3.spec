@@ -133,7 +133,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: %{?scl_prefix}python3
 Version: %{pybasever}.0
-Release:        0.5.20140628hg26287c059304%{?dist}
+Release:        0.7.20140628hg6dd4c2d30b0e%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -204,7 +204,7 @@ BuildRequires: %{?scl_prefix}%{pkg_name}-pip
 # Source code and patches
 # =======================
 
-Source0:        python3-nightly-26287c059304.tar
+Source0:        python3-nightly-6dd4c2d30b0e.tar
 
 # Avoid having various bogus auto-generated Provides lines for the various
 # python c modules' SONAMEs:
@@ -1415,6 +1415,11 @@ echo '[ $? -eq 127 ] && echo "Could not find python%{LDVERSION_optimized}-`uname
   %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
   chmod +x %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
 
+%if 0%{?scl:1}
+ln -s python3 %{buildroot}%{_bindir}/python
+%endif # scl
+
+
 # ======================================================
 # Running the upstream test suite
 # ======================================================
@@ -1492,6 +1497,7 @@ rm -fr %{buildroot}
 %doc LICENSE README
 %{_bindir}/pydoc3
 %{_bindir}/python3
+%{?scl:%{_bindir}/python}
 %{_bindir}/pyvenv
 %{_bindir}/pydoc%{pybasever}
 %{_bindir}/python%{pybasever}
@@ -1891,6 +1897,12 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Sat Jun 28 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.7.20140628hg6dd4c2d30b0e
+- Update to hg: 6dd4c2d30b0e
+
+* Sat Jun 28 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.6.20140628hg8552f3031753
+- Update to hg: 8552f3031753
+
 * Sat Jun 28 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.5.20140628hg26287c059304
 - Update to hg: 26287c059304
 
