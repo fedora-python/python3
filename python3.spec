@@ -6,6 +6,18 @@
 # Turn off default SCL bytecompiling.
 %{?scl:%global _turn_off_bytecompile 1}
 
+# NOTES ON BOOTSTRAPING PYTHON 3.4:
+#
+# Due to dependency cycle between Python, pip, setuptools and
+# wheel caused by the rewheel patch, one has to build in the
+# following order:
+#
+# 1) python3 with with_rewheel set to 0
+# 2) python3-setuptools and python3-pip with with_rewheel set to 0
+# 3) python3-wheel
+# 4) python3-setuptools and python3-pip with with_rewheel set to 1
+# 5) python3 with with_rewheel set to 1
+
 %global with_rewheel 1
 
 %global pybasever 3.5
@@ -63,7 +75,7 @@
 %global with_systemtap 1
 
 # some arches don't have valgrind so we need to disable its support on them
-%ifarch %{ix86} x86_64 ppc ppc64 ppc64p7 s390x %{arm}
+%ifnarch s390 ppc64le
 %global with_valgrind 1
 %else
 %global with_valgrind 0
@@ -1969,6 +1981,18 @@ rm -fr %{buildroot}
 * Wed Jun 18 2014 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.1.20140618hg1e74350dd056
 - Update to hg: 1e74350dd0561
 - Use SCL
+
+* Sun Jun  8 2014 Peter Robinson <pbrobinson@fedoraproject.org> 3.4.1-12
+- aarch64 has valgrind, just list those that don't support it
+
+* Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4.1-11
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Wed Jun 04 2014 Karsten Hopp <karsten@redhat.com> 3.4.1-10
+- bump release and rebuild to link with the correct tcl/tk libs on ppcle
+
+* Tue Jun 03 2014 Matej Stuchlik <mstuchli@redhat.com> - 3.4.1-9
+- Change paths to bundled projects in rewheel patch
 
 * Fri May 30 2014 Miro Hrončok <mhroncok@redhat.com> - 3.4.1-8
 - In config script, use uname -m to write the arch
