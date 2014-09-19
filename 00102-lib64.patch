@@ -1,8 +1,8 @@
 diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
-index 456511c..36d31e9 100644
+index d768dc5..a051164 100644
 --- a/Lib/distutils/command/install.py
 +++ b/Lib/distutils/command/install.py
-@@ -45,14 +45,14 @@ else:
+@@ -30,14 +30,14 @@ WINDOWS_SCHEME = {
  INSTALL_SCHEMES = {
      'unix_prefix': {
          'purelib': '$base/lib/python$py_version_short/site-packages',
@@ -20,7 +20,7 @@ index 456511c..36d31e9 100644
          'scripts': '$base/bin',
          'data'   : '$base',
 diff --git a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
-index 75537db..e5da51c 100644
+index a1452fe..795c559 100644
 --- a/Lib/distutils/sysconfig.py
 +++ b/Lib/distutils/sysconfig.py
 @@ -141,8 +141,12 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
@@ -90,7 +90,7 @@ index dbf7767..dba45c7 100644
          'scripts': '{userbase}/bin',
          'data': '{userbase}',
 diff --git a/Lib/test/test_site.py b/Lib/test/test_site.py
-index c2f37f8..a0f6b8d 100644
+index 79af49c..7a55e53 100644
 --- a/Lib/test/test_site.py
 +++ b/Lib/test/test_site.py
 @@ -244,15 +244,18 @@ class HelperFunctionsTests(unittest.TestCase):
@@ -116,10 +116,10 @@ index c2f37f8..a0f6b8d 100644
  class PthFile(object):
      """Helper class for handling testing of .pth files"""
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 43bc818..25b1c81 100644
+index 04e4704..39728bb 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
-@@ -115,7 +115,7 @@ LIBDIR=		@libdir@
+@@ -120,7 +120,7 @@ LIBDIR=		@libdir@
  MANDIR=		@mandir@
  INCLUDEDIR=	@includedir@
  CONFINCLUDEDIR=	$(exec_prefix)/include
@@ -129,7 +129,7 @@ index 43bc818..25b1c81 100644
  
  # Detailed destination directories
 diff --git a/Modules/getpath.c b/Modules/getpath.c
-index f26b8e9..64bb4cf 100644
+index 11eece4..fb665dc 100644
 --- a/Modules/getpath.c
 +++ b/Modules/getpath.c
 @@ -118,8 +118,8 @@
@@ -144,11 +144,11 @@ index f26b8e9..64bb4cf 100644
  
  #ifndef LANDMARK
 @@ -494,7 +494,7 @@ calculate_path(void)
-     _pythonpath = _Py_char2wchar(PYTHONPATH, NULL);
-     _prefix = _Py_char2wchar(PREFIX, NULL);
-     _exec_prefix = _Py_char2wchar(EXEC_PREFIX, NULL);
--    lib_python = _Py_char2wchar("lib/python" VERSION, NULL);
-+    lib_python = _Py_char2wchar("lib64/python" VERSION, NULL);
+     _pythonpath = Py_DecodeLocale(PYTHONPATH, NULL);
+     _prefix = Py_DecodeLocale(PREFIX, NULL);
+     _exec_prefix = Py_DecodeLocale(EXEC_PREFIX, NULL);
+-    lib_python = Py_DecodeLocale("lib/python" VERSION, NULL);
++    lib_python = Py_DecodeLocale("lib64/python" VERSION, NULL);
  
      if (!_pythonpath || !_prefix || !_exec_prefix || !lib_python) {
          Py_FatalError(
@@ -171,10 +171,10 @@ index f26b8e9..64bb4cf 100644
      /* If we found EXEC_PREFIX do *not* reduce it!  (Yet.) */
  
 diff --git a/setup.py b/setup.py
-index ef8d0f8..fb24a76 100644
+index 4691793..d0a9d12 100644
 --- a/setup.py
 +++ b/setup.py
-@@ -455,7 +455,7 @@ class PyBuildExt(build_ext):
+@@ -461,7 +461,7 @@ class PyBuildExt(build_ext):
          # directories (i.e. '.' and 'Include') must be first.  See issue
          # 10520.
          if not cross_compiling:
@@ -183,7 +183,7 @@ index ef8d0f8..fb24a76 100644
              add_dir_to_list(self.compiler.include_dirs, '/usr/local/include')
          # only change this for cross builds for 3.3, issues on Mageia
          if cross_compiling:
-@@ -732,11 +732,11 @@ class PyBuildExt(build_ext):
+@@ -740,11 +740,11 @@ class PyBuildExt(build_ext):
              elif curses_library:
                  readline_libs.append(curses_library)
              elif self.compiler.find_library_file(lib_dirs +
@@ -197,7 +197,7 @@ index ef8d0f8..fb24a76 100644
                                     extra_link_args=readline_extra_link_args,
                                     libraries=readline_libs) )
          else:
-@@ -773,8 +773,8 @@ class PyBuildExt(build_ext):
+@@ -781,8 +781,8 @@ class PyBuildExt(build_ext):
              if krb5_h:
                  ssl_incs += krb5_h
          ssl_libs = find_library_file(self.compiler, 'ssl',lib_dirs,
