@@ -692,13 +692,6 @@ Patch189: 00189-add-rewheel-module.patch
 # see rhbz#1088233
 Patch194: temporarily-disable-tests-requiring-SIGHUP.patch
 
-# 00195
-#
-# Don't declare Werror=declaration-after-statement for extension
-# modules through setup.py
-# http://bugs.python.org/issue21121
-Patch195: 00195-dont-add-Werror-declaration-after-statement.patch
-
 # 00196
 #
 #  Fix test_gdb failure on ppc64le
@@ -991,7 +984,6 @@ done
 # 00190: upstream as of Python 3.4.1
 # 00193: upstream as of Python 3.4.1
 %patch194 -p1
-%patch195 -p1
 %patch196 -p1
 
 # Currently (2010-01-15), http://docs.python.org/library is for 2.6, and there
