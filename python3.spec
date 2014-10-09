@@ -1758,7 +1758,6 @@ rm -fr %{buildroot}
 %{pylibdir}/__pycache__/turtle*%{bytecode_suffixes}
 %dir %{pylibdir}/turtledemo
 %{pylibdir}/turtledemo/*.py
-%{pylibdir}/turtledemo/*.txt
 %{pylibdir}/turtledemo/*.cfg
 %dir %{pylibdir}/turtledemo/__pycache__/
 %{pylibdir}/turtledemo/__pycache__/*%{bytecode_suffixes}
