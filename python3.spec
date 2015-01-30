@@ -145,7 +145,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: %{?scl_prefix}python3
 Version: %{pybasever}.0
-Release:        0.228.20150130hgefb25925bd13%{?dist}
+Release:        0.229.20150130hg424314dd2381%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -216,7 +216,7 @@ BuildRequires: %{?scl_prefix}%{pkg_name}-pip
 # Source code and patches
 # =======================
 
-Source0:        python3-nightly-efb25925bd13.tar
+Source0:        python3-nightly-424314dd2381.tar
 
 # Avoid having various bogus auto-generated Provides lines for the various
 # python c modules' SONAMEs:
@@ -1900,6 +1900,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Fri Jan 30 2015 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.229.20150130hg424314dd2381
+- Update to hg: 424314dd2381
+
 * Fri Jan 30 2015 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.228.20150130hgefb25925bd13
 - Update to hg: efb25925bd13
 
