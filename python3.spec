@@ -145,7 +145,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: %{?scl_prefix}python3
 Version: %{pybasever}.0
-Release:        0.229.20150130hg424314dd2381%{?dist}
+Release:        0.230.20150130hg424314dd2381%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -1460,6 +1460,8 @@ CheckPython() {
     -x test_faulthandler
     %endif
 
+  echo EXIT CODE OF TEST SUITE: $?
+
   echo FINISHED: CHECKING OF PYTHON FOR CONFIGURATION: $ConfName
 
 }
@@ -1900,6 +1902,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Fri Jan 30 2015 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.230.20150130hg424314dd2381
+- Echo the exit code of the test suite, see https://github.com/fedora-python/python3/issues/2
+
 * Fri Jan 30 2015 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.229.20150130hg424314dd2381
 - Update to hg: 424314dd2381
 
