@@ -1460,10 +1460,12 @@ CheckPython() {
     -x test_faulthandler
     %endif
 
-  echo EXIT CODE OF TEST SUITE: $?
+  rcode=$?
 
   echo FINISHED: CHECKING OF PYTHON FOR CONFIGURATION: $ConfName
+  echo EXIT CODE OF TEST SUITE: $rcode
 
+  return $rcode
 }
 export -f CheckPython
 
