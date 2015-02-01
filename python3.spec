@@ -1904,7 +1904,7 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
-- Sat Jan 31 2015 Robert Kuska <rkuska@redhat.com>  - 3.5.0-0.232.20150130hg424314dd2381%{?dist}
+* Sat Jan 31 2015 Robert Kuska <rkuska@redhat.com>  - 3.5.0-0.232.20150130hg424314dd2381%{?dist}
 - Bump release version
 
 * Fri Jan 30 2015 Miro Hrončok <mhroncok@redhat.com> - 3.5.0-0.231.20150130hg424314dd2381
