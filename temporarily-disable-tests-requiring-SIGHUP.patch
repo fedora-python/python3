@@ -3,8 +3,8 @@ index 258fdcb..a5d559d 100644
 --- a/Lib/test/test_asyncio/test_events.py
 +++ b/Lib/test/test_asyncio/test_events.py
 @@ -1537,7 +1537,7 @@ class SubprocessTestsMixin:
-         self.loop.run_until_complete(proto.completed)
          self.check_terminated(proto.returncode)
+         transp.close()
  
 -    @unittest.skipIf(sys.platform == 'win32', "Don't have SIGHUP")
 +    @unittest.skipIf(True, "Temporarily skipped (rhbz#1088233)")

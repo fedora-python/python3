@@ -1,7 +1,7 @@
-diff -up Python-2.7/Python/pythonrun.c.less-verbose-COUNT_ALLOCS Python-2.7/Python/pythonrun.c
---- Python-2.7/Python/pythonrun.c.less-verbose-COUNT_ALLOCS	2010-08-17 14:49:33.321913909 -0400
-+++ Python-2.7/Python/pythonrun.c	2010-08-17 14:54:48.750910403 -0400
-@@ -470,7 +470,15 @@ Py_Finalize(void)
+diff -up python3-nightly/Python/pylifecycle.c.old python3-nightly/Python/pylifecycle.c
+--- python3-nightly/Python/pylifecycle.c.old	2015-02-07 13:38:56.279413689 +0100
++++ python3-nightly/Python/pylifecycle.c	2015-02-07 13:39:36.920664202 +0100
+@@ -612,7 +612,15 @@ Py_Finalize(void)
  
      /* Debugging stuff */
  #ifdef COUNT_ALLOCS
