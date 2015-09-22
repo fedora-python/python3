@@ -1921,7 +1921,7 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
-- Tue Sep 22 2015 Robert Kuska <rkuska@redhat.com> - 3.4.3-6
+* Tue Sep 22 2015 Robert Kuska <rkuska@redhat.com> - 3.4.3-6
 - Move idlelib and lib2to3 modules to python3-tools
 
 * Mon Jun 29 2015 Thomas Spura <tomspur@fedoraproject.org> - 3.4.3-5
