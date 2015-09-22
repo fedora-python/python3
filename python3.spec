@@ -140,7 +140,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
 Version: %{pybasever}.3
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -1665,7 +1665,6 @@ rm -fr %{buildroot}
 
 %{pylibdir}/html
 %{pylibdir}/http
-%{pylibdir}/idlelib
 
 %dir %{pylibdir}/importlib/
 %dir %{pylibdir}/importlib/__pycache__/
@@ -1677,8 +1676,6 @@ rm -fr %{buildroot}
 %{pylibdir}/json/*.py
 %{pylibdir}/json/__pycache__/*%{bytecode_suffixes}
 
-%{pylibdir}/lib2to3
-%exclude %{pylibdir}/lib2to3/tests
 %{pylibdir}/logging
 %{pylibdir}/multiprocessing
 %{pylibdir}/plat-linux
@@ -1762,9 +1759,13 @@ rm -fr %{buildroot}
 %files tools
 %defattr(-,root,root,755)
 %{_bindir}/python3-2to3
+%{_bindir}/2to3
 %{_bindir}/2to3-%{pybasever}
 %{_bindir}/idle*
 %{pylibdir}/Tools
+%{pylibdir}/idlelib
+%{pylibdir}/lib2to3
+%exclude %{pylibdir}/lib2to3/tests
 %doc %{pylibdir}/Doc
 
 %files tkinter
@@ -1920,6 +1921,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+- Tue Sep 22 2015 Robert Kuska <rkuska@redhat.com> - 3.4.3-5
+- Move idlelib and lib2to3 modules to python3-tools
+
 * Mon Jun 29 2015 Thomas Spura <tomspur@fedoraproject.org> - 3.4.3-4
 - python3-devel: Require python-macros for version independant macros such as
   python_provide. See fpc#281 and fpc#534.
