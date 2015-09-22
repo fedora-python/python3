@@ -1928,13 +1928,13 @@ rm -fr %{buildroot}
 - python3-devel: Require python-macros for version independant macros such as
   python_provide. See fpc#281 and fpc#534.
 
+* Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4.3-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Wed Jun 17 2015 Matej Stuchlik <mstuchli@redhat.com> - 3.4.3-4
 - Use 1024bit DH key in test_ssl
 - Use -O0 when compiling -debug build
 - Update pip version variable to the version we actually ship
-
-* Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 3.4.3-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
 * Wed Jun 17 2015 Matej Stuchlik <mstuchli@redhat.com> - 3.4.3-3
 - Make relocating Python by changing _prefix actually work
