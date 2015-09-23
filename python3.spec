@@ -915,7 +915,7 @@ for f in md5module.c sha1module.c sha256module.c sha512module.c; do
 done
 
 %if 0%{with_rewheel}
-%global pip_version 7.0.3
+%global pip_version 7.1.0
 sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/ensurepip/__init__.py
 %endif
 
@@ -1923,6 +1923,7 @@ rm -fr %{buildroot}
 %changelog
 * Tue Sep 22 2015 Robert Kuska <rkuska@redhat.com> - 3.4.3-6
 - Move idlelib and lib2to3 modules to python3-tools
+- Update pip_version
 
 * Mon Jun 29 2015 Thomas Spura <tomspur@fedoraproject.org> - 3.4.3-5
 - python3-devel: Require python-macros for version independant macros such as
