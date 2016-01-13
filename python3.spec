@@ -140,7 +140,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
 Version: %{pybasever}.3
-Release: 5%{?dist}
+Release: 6%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -215,10 +215,6 @@ Source: http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.xz
 Source1: find-provides-without-python-sonames.sh
 %global _use_internal_dependency_generator 0
 %global __find_provides %{SOURCE1}
-
-# Supply various useful macros for building python 3 modules:
-#  __python3, python3_sitelib, python3_sitearch
-Source2: macros.python%{pybasever}
 
 # Supply an RPM macro "py_byte_compile" for the python3-devel subpackage
 # to enable specfiles to selectively byte-compile individual files and paths
@@ -803,8 +799,9 @@ Summary: Libraries and header files needed for Python 3 development
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-BuildRequires: python-macros
-Requires: python-macros
+BuildRequires: python-rpm-macros
+Requires: python-rpm-macros
+Requires: python3-rpm-macros
 Conflicts: %{name} < %{version}-%{release}
 
 %description devel
@@ -1372,7 +1369,6 @@ find %{buildroot} \
 
 # Install macros for rpm:
 mkdir -p %{buildroot}/%{_rpmconfigdir}/macros.d/
-install -m 644 %{SOURCE2} %{buildroot}/%{_rpmconfigdir}/macros.d/
 install -m 644 %{SOURCE3} %{buildroot}/%{_rpmconfigdir}/macros.d/
 
 # Ensure that the curses module was linked against libncursesw.so, rather than
@@ -1756,7 +1752,6 @@ rm -fr %{buildroot}
 %{_libdir}/pkgconfig/python-%{LDVERSION_optimized}.pc
 %{_libdir}/pkgconfig/python-%{pybasever}.pc
 %{_libdir}/pkgconfig/python3.pc
-%{_rpmconfigdir}/macros.d/macros.python%{pybasever}
 %{_rpmconfigdir}/macros.d/macros.pybytecompile%{pybasever}
 
 %files tools
@@ -1920,6 +1915,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Mon Mar 28 2016 Orion Poplwski <orion@cora.nwra.com> - 3.4.3-6
+- Drop python3 macros, require python/python3-rpm-macros
+
 * Mon Jun 29 2015 Thomas Spura <tomspur@fedoraproject.org> - 3.4.3-5
 - python3-devel: Require python-macros for version independant macros such as
   python_provide. See fpc#281 and fpc#534.
