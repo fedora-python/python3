@@ -140,7 +140,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
 Version: %{pybasever}.3
-Release: 6%{?dist}
+Release: 7%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -730,6 +730,12 @@ Patch203: 00203-disable-threading-test-koji.patch
 # openssl requires DH keys to be > 768bits
 Patch204: 00204-increase-dh-keys-size.patch
 
+# https://bugs.python.org/issue26171
+# https://hg.python.org/cpython/rev/10dad6da1b28/
+# Fix possible integer overflow and heap corruption in zipimporter.get_data()
+# FIXED UPSTREAM
+Patch209: 00209-prevent-buffer-overflow-in-zipimport-module.patch
+
 
 # (New patches go here ^^^)
 #
@@ -1021,6 +1027,8 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 %patch202 -p1
 %patch203 -p1
 %patch204 -p1
+
+%patch209 -p1
 
 # Currently (2010-01-15), http://docs.python.org/library is for 2.6, and there
 # are many differences between 2.6 and the Python 3 library.
@@ -1915,6 +1923,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Mon Jun 13 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.4.3-7
+- Added patch for fixing possible integer overflow and heap corruption in zipimporter.get_data()
+
 * Mon Mar 28 2016 Orion Poplwski <orion@cora.nwra.com> - 3.4.3-6
 - Drop python3 macros, require python/python3-rpm-macros
 
