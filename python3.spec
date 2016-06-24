@@ -140,7 +140,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
 Version: %{pybasever}.3
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -744,6 +744,15 @@ Patch209: 00209-prevent-buffer-overflow-in-zipimport-module.patch
 # Raise an error when STARTTLS fails
 Patch210: 00210-Raise-an-error-when-STARTTLS-fails.patch
 
+# 00211 #
+# CVE-2016-5699 python: http protocol steam injection attack
+#   https://bugzilla.redhat.com/show_bug.cgi?id=1303699
+#   FIXED UPSTREAM: https://hg.python.org/cpython/rev/bf3e1c9b80e9
+# Disabled HTTP header injections in http.client
+# Resolves: rhbz#1331392
+Patch211: 00211-Disabled-HTTP-header-injections-in-http-client.patch
+
+
 # (New patches go here ^^^)
 #
 # When adding new patches to "python" and "python3" in Fedora 17 onwards,
@@ -1037,6 +1046,7 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 
 %patch209 -p1
 %patch210 -p1
+%patch211 -p1
 
 # Currently (2010-01-15), http://docs.python.org/library is for 2.6, and there
 # are many differences between 2.6 and the Python 3 library.
@@ -1931,6 +1941,12 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Fri Jun 24 2016 Tomas Orsava <torsava@redhat.com> - 3.4.3-9
+- Fix CVE-2016-5699 python: http protocol steam injection attack (rhbz#1303699)
+- Fixed upstream: https://hg.python.org/cpython/rev/bf3e1c9b80e9
+- Disabled HTTP header injections in http.client
+Resolves: rhbz#1331392
+
 * Thu Jun 16 2016 Tomas Orsava <torsava@redhat.com> - 3.4.3-8
 - Fix for: CVE-2016-0772 python: smtplib StartTLS stripping attack
 - Raise an error when STARTTLS fails
