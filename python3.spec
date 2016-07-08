@@ -140,7 +140,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
 Version: %{pybasever}.3
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -752,6 +752,11 @@ Patch210: 00210-Raise-an-error-when-STARTTLS-fails.patch
 # Resolves: rhbz#1331392
 Patch211: 00211-Disabled-HTTP-header-injections-in-http-client.patch
 
+# 00212 #
+# Fix test breakage with version 2.2.0 of Expat
+# rhbz#1353918: https://bugzilla.redhat.com/show_bug.cgi?id=1353918
+# NOT YET FIXED UPSTREAM: http://bugs.python.org/issue27369
+Patch212: 00212-fix-test-pyexpat-failure.patch
 
 # (New patches go here ^^^)
 #
@@ -1047,6 +1052,7 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 %patch209 -p1
 %patch210 -p1
 %patch211 -p1
+%patch212 -p1
 
 # Currently (2010-01-15), http://docs.python.org/library is for 2.6, and there
 # are many differences between 2.6 and the Python 3 library.
@@ -1941,6 +1947,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Fri Jul 08 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.4.3-10
+- Fix test_pyexpat failure with Expat version of 2.2.0
+
 * Fri Jun 24 2016 Tomas Orsava <torsava@redhat.com> - 3.4.3-9
 - Fix CVE-2016-5699 python: http protocol steam injection attack (rhbz#1303699)
 - Fixed upstream: https://hg.python.org/cpython/rev/bf3e1c9b80e9
