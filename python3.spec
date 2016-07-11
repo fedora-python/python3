@@ -140,7 +140,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
 Version: %{pybasever}.3
-Release: 10%{?dist}
+Release: 11%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -730,11 +730,14 @@ Patch203: 00203-disable-threading-test-koji.patch
 # openssl requires DH keys to be > 768bits
 Patch204: 00204-increase-dh-keys-size.patch
 
-# https://bugs.python.org/issue26171
+# 00209 #
+# CVE-2016-5636: http://seclists.org/oss-sec/2016/q2/560
+# rhbz#1345859: https://bugzilla.redhat.com/show_bug.cgi?id=1345859
 # https://hg.python.org/cpython/rev/10dad6da1b28/
+# https://hg.python.org/cpython/rev/5533a9e02b21
 # Fix possible integer overflow and heap corruption in zipimporter.get_data()
-# FIXED UPSTREAM
-Patch209: 00209-prevent-buffer-overflow-in-zipimport-module.patch
+# FIXED UPSTREAM: https://bugs.python.org/issue26171
+Patch209: 00209-CVE-2016-5636-buffer-overflow-in-zipimport-module-fix.patch
 
 # 00210 #
 # CVE-2016-0772 python: smtplib StartTLS stripping attack
@@ -1947,7 +1950,10 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
-* Fri Jul 08 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.4.3-10
+* Mon Jul 11 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.4.3-11
+- Refactor patch for properly fixing CVE-2016-5636
+
+* Mon Jul 11 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.4.3-10
 - Fix test_pyexpat failure with Expat version of 2.2.0
 
 * Fri Jun 24 2016 Tomas Orsava <torsava@redhat.com> - 3.4.3-9
