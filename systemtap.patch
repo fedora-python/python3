@@ -1,102 +1,18 @@
-diff -up Python-3.3.0rc2/configure.ac.systemtap Python-3.3.0rc2/configure.ac
---- Python-3.3.0rc2/configure.ac.systemtap	2012-09-09 05:11:14.000000000 -0400
-+++ Python-3.3.0rc2/configure.ac	2012-09-10 09:17:21.114511781 -0400
-@@ -2678,6 +2678,23 @@ if test "$with_valgrind" != no; then
-     OPT="-DDYNAMIC_ANNOTATIONS_ENABLED=1 $OPT"
- fi
- 
-+# Check for systemtap support
-+# On Linux, /usr/bin/dtrace is in fact a shim to SystemTap
-+AC_MSG_CHECKING([for --with-systemtap])
-+AC_ARG_WITH([systemtap],
-+            AC_HELP_STRING([--with(out)-systemtap], [disable/enable SystemTap support]),,
-+            with_systemtap=no)
-+AC_MSG_RESULT([$with_systemtap])
-+if test "$with_systemtap" != no; then
-+    AC_DEFINE(WITH_SYSTEMTAP, 1,
-+        [Define if you want to compile in SystemTap support])
-+    SYSTEMTAPOBJS="Python/pysystemtap.o"
-+    SYSTEMTAPDEPS="\$(srcdir)/Python/pysystemtap.h"
-+fi
-+
-+AC_SUBST(SYSTEMTAPOBJS)
-+AC_SUBST(SYSTEMTAPDEPS)
-+
- # -I${DLINCLDIR} is added to the compile rule for importdl.o
- AC_SUBST(DLINCLDIR)
- DLINCLDIR=.
-diff -up Python-3.3.0rc2/configure.systemtap Python-3.3.0rc2/configure
---- Python-3.3.0rc2/configure.systemtap	2012-09-09 05:11:14.000000000 -0400
-+++ Python-3.3.0rc2/configure	2012-09-10 09:17:21.116511780 -0400
-@@ -618,6 +618,8 @@ TRUE
- MACHDEP_OBJS
- DYNLOADFILE
- DLINCLDIR
-+SYSTEMTAPDEPS
-+SYSTEMTAPOBJS
- THREADOBJ
- LDLAST
- USE_THREAD_MODULE
-@@ -779,6 +781,7 @@ with_doc_strings
- with_tsc
- with_pymalloc
- with_valgrind
-+with_systemtap
- with_fpectl
- with_libm
- with_libc
-@@ -1456,6 +1459,7 @@ Optional Packages:
-   --with(out)-tsc         enable/disable timestamp counter profile
-   --with(out)-pymalloc    disable/enable specialized mallocs
-   --with-valgrind         Enable Valgrind support
-+  --with(out)-systemtap   disable/enable SystemTap support
-   --with-fpectl           enable SIGFPE catching
-   --with-libm=STRING      math library
-   --with-libc=STRING      C library
-@@ -10065,6 +10069,31 @@ fi
-     OPT="-DDYNAMIC_ANNOTATIONS_ENABLED=1 $OPT"
- fi
- 
-+# Check for systemtap support
-+# On Linux, /usr/bin/dtrace is in fact a shim to SystemTap
-+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for --with-systemtap" >&5
-+$as_echo_n "checking for --with-systemtap... " >&6; }
-+
-+# Check whether --with-systemtap was given.
-+if test "${with_systemtap+set}" = set; then :
-+  withval=$with_systemtap;
-+else
-+  with_systemtap=no
-+fi
-+
-+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $with_systemtap" >&5
-+$as_echo "$with_systemtap" >&6; }
-+if test "$with_systemtap" != no; then
-+
-+$as_echo "#define WITH_SYSTEMTAP 1" >>confdefs.h
-+
-+    SYSTEMTAPOBJS="Python/pysystemtap.o"
-+    SYSTEMTAPDEPS="\$(srcdir)/Python/pysystemtap.h"
-+fi
-+
-+
-+
-+
- # -I${DLINCLDIR} is added to the compile rule for importdl.o
- 
- DLINCLDIR=.
-diff -up Python-3.3.0rc2/Doc/howto/index.rst.systemtap Python-3.3.0rc2/Doc/howto/index.rst
---- Python-3.3.0rc2/Doc/howto/index.rst.systemtap	2012-09-09 05:10:51.000000000 -0400
-+++ Python-3.3.0rc2/Doc/howto/index.rst	2012-09-10 09:17:21.117511779 -0400
-@@ -29,4 +29,5 @@ Currently, the HOWTOs are:
+diff --git a/Doc/howto/index.rst b/Doc/howto/index.rst
+index de65950..593341c 100644
+--- a/Doc/howto/index.rst
++++ b/Doc/howto/index.rst
+@@ -28,4 +28,5 @@ Currently, the HOWTOs are:
     argparse.rst
     ipaddress.rst
     clinic.rst
 +   instrumentation.rst
  
-diff -up Python-3.3.0rc2/Doc/howto/instrumentation.rst.systemtap Python-3.3.0rc2/Doc/howto/instrumentation.rst
---- Python-3.3.0rc2/Doc/howto/instrumentation.rst.systemtap	2012-09-10 09:17:21.117511779 -0400
-+++ Python-3.3.0rc2/Doc/howto/instrumentation.rst	2012-09-10 09:17:21.117511779 -0400
+diff --git a/Doc/howto/instrumentation.rst b/Doc/howto/instrumentation.rst
+new file mode 100644
+index 0000000..b6924e1
+--- /dev/null
++++ b/Doc/howto/instrumentation.rst
 @@ -0,0 +1,295 @@
 +.. _instrumentation:
 +
@@ -393,9 +309,11 @@ diff -up Python-3.3.0rc2/Doc/howto/instrumentation.rst.systemtap Python-3.3.0rc2
 +        delete fn_calls;
 +    }
 +
-diff -up Python-3.3.0rc2/Lib/test/test_systemtap.py.systemtap Python-3.3.0rc2/Lib/test/test_systemtap.py
---- Python-3.3.0rc2/Lib/test/test_systemtap.py.systemtap	2012-09-10 09:17:21.117511779 -0400
-+++ Python-3.3.0rc2/Lib/test/test_systemtap.py	2012-09-10 09:17:21.117511779 -0400
+diff --git a/Lib/test/test_systemtap.py b/Lib/test/test_systemtap.py
+new file mode 100644
+index 0000000..a669064
+--- /dev/null
++++ b/Lib/test/test_systemtap.py
 @@ -0,0 +1,234 @@
 +# Verify that systemtap static probes work
 +#
@@ -631,66 +549,55 @@ diff -up Python-3.3.0rc2/Lib/test/test_systemtap.py.systemtap Python-3.3.0rc2/Li
 +
 +if __name__ == "__main__":
 +    test_main()
-diff -up a/Makefile.pre.in b/Makefile.pre.in
+diff --git a/Makefile.pre.in b/Makefile.pre.in
+index 105481a..17468d0 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
-@@ -415,6 +415,7 @@ PYTHON_OBJS=        \
-                Python/formatter_unicode.o \
-                Python/fileutils.o \
-                Python/$(DYNLOADFILE) \
-+               @SYSTEMTAPOBJS@ \
-                $(LIBOBJS) \
-                $(MACHDEP_OBJS) \
-                $(THREADOBJ)
+@@ -415,6 +415,7 @@ PYTHON_OBJS=	\
+ 		Python/formatter_unicode.o \
+ 		Python/fileutils.o \
+ 		Python/$(DYNLOADFILE) \
++		@SYSTEMTAPOBJS@ \
+ 		$(LIBOBJS) \
+ 		$(MACHDEP_OBJS) \
+ 		$(THREADOBJ)
 @@ -869,7 +870,8 @@ Objects/setobject.o: $(srcdir)/Objects/stringlib/eq.h
  $(OPCODETARGETS_H): $(OPCODETARGETGEN_FILES)
-        $(PYTHON_FOR_GEN) $(OPCODETARGETGEN) $(OPCODETARGETS_H)
+ 	$(PYTHON_FOR_GEN) $(OPCODETARGETGEN) $(OPCODETARGETS_H)
  
 -Python/ceval.o: $(OPCODETARGETS_H) $(srcdir)/Python/ceval_gil.h
 +Python/ceval.o: $(OPCODETARGETS_H) $(srcdir)/Python/ceval_gil.h \
-+                       $(srcdir)/Python/ceval_systemtap.h @SYSTEMTAPDEPS@
++					$(srcdir)/Python/ceval_systemtap.h @SYSTEMTAPDEPS@
  
  Python/frozen.o: Python/importlib.h Python/importlib_external.h
  
 @@ -877,6 +879,13 @@ Objects/typeobject.o: Objects/typeslots.inc
  Objects/typeslots.inc: $(srcdir)/Include/typeslots.h $(srcdir)/Objects/typeslots.py
-        $(PYTHON_FOR_GEN) $(srcdir)/Objects/typeslots.py < $(srcdir)/Include/typeslots.h Objects/typeslots.inc
+ 	$(PYTHON_FOR_GEN) $(srcdir)/Objects/typeslots.py < $(srcdir)/Include/typeslots.h Objects/typeslots.inc
  
 +# Only needed with --with-systemtap; not a public header:
 +$(srcdir)/Python/pysystemtap.h: $(srcdir)/Python/pysystemtap.d
-+       dtrace -o $@ $(DFLAGS) -C -h -s $(srcdir)/Python/pysystemtap.d
++		dtrace -o $@ $(DFLAGS) -C -h -s $(srcdir)/Python/pysystemtap.d
 +
 +Python/pysystemtap.o: $(srcdir)/Python/pysystemtap.d Python/ceval.o
-+       dtrace -o $@ $(DFLAGS) -C -G -s $(srcdir)/Python/pysystemtap.d Python/ceval.o
++		dtrace -o $@ $(DFLAGS) -C -G -s $(srcdir)/Python/pysystemtap.d Python/ceval.o
 +
  ############################################################################
  # Header files
  
 @@ -1610,6 +1619,7 @@ clean: pycremoval
-        -rm -f Lib/lib2to3/*Grammar*.pickle
-        -rm -f Programs/_testembed Programs/_freeze_importlib
-        -rm -rf build
-+       -rm -f $(srcdir)/Python/pysystemtap.h
+ 	-rm -f Lib/lib2to3/*Grammar*.pickle
+ 	-rm -f Programs/_testembed Programs/_freeze_importlib
+ 	-rm -rf build
++	-rm -f $(srcdir)/Python/pysystemtap.h
  
  profile-removal:
-        find . -name '*.gc??' -exec rm -f {} ';'
-diff -up Python-3.3.0rc2/pyconfig.h.in.systemtap Python-3.3.0rc2/pyconfig.h.in
---- Python-3.3.0rc2/pyconfig.h.in.systemtap	2012-09-09 05:11:14.000000000 -0400
-+++ Python-3.3.0rc2/pyconfig.h.in	2012-09-10 09:17:21.120511781 -0400
-@@ -1306,6 +1306,9 @@
- /* Define if you want to compile in Python-specific mallocs */
- #undef WITH_PYMALLOC
- 
-+/* Define if you want to compile in SystemTap support */
-+#undef WITH_SYSTEMTAP
-+
- /* Define if you want to compile in rudimentary thread support */
- #undef WITH_THREAD
- 
-diff -up Python-3.3.0rc2/Python/ceval.c.systemtap Python-3.3.0rc2/Python/ceval.c
---- Python-3.3.0rc2/Python/ceval.c.systemtap	2012-09-09 05:11:12.000000000 -0400
-+++ Python-3.3.0rc2/Python/ceval.c	2012-09-10 09:17:21.122511781 -0400
-@@ -18,6 +18,8 @@
+ 	find . -name '*.gc??' -exec rm -f {} ';'
+diff --git a/Python/ceval.c b/Python/ceval.c
+index 07ac167..c4e9a11 100644
+--- a/Python/ceval.c
++++ b/Python/ceval.c
+@@ -20,6 +20,8 @@
  
  #include <ctype.h>
  
@@ -699,7 +606,7 @@ diff -up Python-3.3.0rc2/Python/ceval.c.systemtap Python-3.3.0rc2/Python/ceval.c
  #ifndef WITH_TSC
  
  #define READ_TIMESTAMP(var)
-@@ -1160,6 +1162,10 @@ PyEval_EvalFrameEx(PyFrameObject *f, int
+@@ -1162,6 +1164,10 @@ PyEval_EvalFrameEx(PyFrameObject *f, int throwflag)
          }
      }
  
@@ -710,7 +617,7 @@ diff -up Python-3.3.0rc2/Python/ceval.c.systemtap Python-3.3.0rc2/Python/ceval.c
      co = f->f_code;
      names = co->co_names;
      consts = co->co_consts;
-@@ -3077,6 +3083,11 @@ fast_yield:
+@@ -3622,6 +3628,11 @@ fast_yield:
  
      /* pop frame */
  exit_eval_frame:
@@ -722,9 +629,11 @@ diff -up Python-3.3.0rc2/Python/ceval.c.systemtap Python-3.3.0rc2/Python/ceval.c
      Py_LeaveRecursiveCall();
      f->f_executing = 0;
      tstate->frame = f->f_back;
-diff -up Python-3.3.0rc2/Python/ceval_systemtap.h.systemtap Python-3.3.0rc2/Python/ceval_systemtap.h
---- Python-3.3.0rc2/Python/ceval_systemtap.h.systemtap	2012-09-10 09:17:21.122511781 -0400
-+++ Python-3.3.0rc2/Python/ceval_systemtap.h	2012-09-10 09:17:21.122511781 -0400
+diff --git a/Python/ceval_systemtap.h b/Python/ceval_systemtap.h
+new file mode 100644
+index 0000000..38697ad
+--- /dev/null
++++ b/Python/ceval_systemtap.h
 @@ -0,0 +1,86 @@
 +/*
 +  Support for SystemTap static markers  
@@ -812,11 +721,113 @@ diff -up Python-3.3.0rc2/Python/ceval_systemtap.h.systemtap Python-3.3.0rc2/Pyth
 +#define systemtap_function_return(f)
 +
 +#endif
-diff -up Python-3.3.0rc2/Python/pysystemtap.d.systemtap Python-3.3.0rc2/Python/pysystemtap.d
---- Python-3.3.0rc2/Python/pysystemtap.d.systemtap	2012-09-10 09:17:21.122511781 -0400
-+++ Python-3.3.0rc2/Python/pysystemtap.d	2012-09-10 09:17:21.122511781 -0400
+diff --git a/Python/pysystemtap.d b/Python/pysystemtap.d
+new file mode 100644
+index 0000000..c2cdef0
+--- /dev/null
++++ b/Python/pysystemtap.d
 @@ -0,0 +1,4 @@
 +provider python {
 +    probe function__entry(const char *, const char *, int, PyFrameObject *);
 +    probe function__return(const char *, const char *, int, PyFrameObject *);
 +};
+diff --git a/configure b/configure
+index e06fce4..a36e969 100755
+--- a/configure
++++ b/configure
+@@ -642,6 +642,8 @@ TRUE
+ MACHDEP_OBJS
+ DYNLOADFILE
+ DLINCLDIR
++SYSTEMTAPDEPS
++SYSTEMTAPOBJS
+ THREADOBJ
+ LDLAST
+ USE_THREAD_MODULE
+@@ -828,6 +830,7 @@ with_doc_strings
+ with_tsc
+ with_pymalloc
+ with_valgrind
++with_systemtap
+ with_fpectl
+ with_libm
+ with_libc
+@@ -1530,6 +1533,7 @@ Optional Packages:
+   --with(out)-tsc         enable/disable timestamp counter profile
+   --with(out)-pymalloc    disable/enable specialized mallocs
+   --with-valgrind         Enable Valgrind support
++  --with(out)-systemtap   disable/enable SystemTap support
+   --with-fpectl           enable SIGFPE catching
+   --with-libm=STRING      math library
+   --with-libc=STRING      C library
+@@ -11033,6 +11037,28 @@ fi
+     OPT="-DDYNAMIC_ANNOTATIONS_ENABLED=1 $OPT"
+ fi
+ 
++# Check for systemtap support
++# On Linux, /usr/bin/dtrace is in fact a shim to SystemTap
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for --with-systemtap" >&5
++$as_echo_n "checking for --with-systemtap... " >&6; }
++
++# Check whether --with-systemtap was given.
++if test "${with_systemtap+set}" = set; then :
++  withval=$with_systemtap;
++else
++  with_systemtap=no
++fi
++
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $with_systemtap" >&5
++$as_echo "$with_systemtap" >&6; }
++if test "$with_systemtap" != no; then
++
++$as_echo "#define WITH_SYSTEMTAP 1" >>confdefs.h
++
++    SYSTEMTAPOBJS="Python/pysystemtap.o"
++    SYSTEMTAPDEPS="\$(srcdir)/Python/pysystemtap.h"
++fi
++
+ # -I${DLINCLDIR} is added to the compile rule for importdl.o
+ 
+ DLINCLDIR=.
+diff --git a/configure.ac b/configure.ac
+index a83fe51..eab874b 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3233,6 +3233,23 @@ if test "$with_valgrind" != no; then
+     OPT="-DDYNAMIC_ANNOTATIONS_ENABLED=1 $OPT"
+ fi
+ 
++# Check for systemtap support
++# On Linux, /usr/bin/dtrace is in fact a shim to SystemTap
++AC_MSG_CHECKING([for --with-systemtap])
++AC_ARG_WITH([systemtap],
++            AC_HELP_STRING([--with(out)-systemtap], [disable/enable SystemTap support]),,
++            with_systemtap=no)
++AC_MSG_RESULT([$with_systemtap])
++if test "$with_systemtap" != no; then
++    AC_DEFINE(WITH_SYSTEMTAP, 1,
++        [Define if you want to compile in SystemTap support])
++    SYSTEMTAPOBJS="Python/pysystemtap.o"
++    SYSTEMTAPDEPS="\$(srcdir)/Python/pysystemtap.h"
++fi
++
++AC_SUBST(SYSTEMTAPOBJS)
++AC_SUBST(SYSTEMTAPDEPS)
++
+ # -I${DLINCLDIR} is added to the compile rule for importdl.o
+ AC_SUBST(DLINCLDIR)
+ DLINCLDIR=.
+diff --git a/pyconfig.h.in b/pyconfig.h.in
+index dce5cfd..1c2f82a 100644
+--- a/pyconfig.h.in
++++ b/pyconfig.h.in
+@@ -1409,6 +1409,9 @@
+ /* Define if you want to compile in Python-specific mallocs */
+ #undef WITH_PYMALLOC
+ 
++/* Define if you want to compile in SystemTap support */
++#undef WITH_SYSTEMTAP
++
+ /* Define if you want to compile in rudimentary thread support */
+ #undef WITH_THREAD
+ 

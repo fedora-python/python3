@@ -2,7 +2,7 @@
 # Conditionals and other variables controlling the build
 # ======================================================
 
-# NOTES ON BOOTSTRAPING PYTHON 3.5:
+# NOTES ON BOOTSTRAPING PYTHON 3.6:
 #
 # Due to dependency cycle between Python, pip, setuptools and
 # wheel caused by the rewheel patch, one has to build in the
@@ -16,10 +16,10 @@
 
 %global with_rewheel 1
 
-%global pybasever 3.5
+%global pybasever 3.6
 
 # pybasever without the dot:
-%global pyshortver 35
+%global pyshortver 36
 
 %global pylibdir %{_libdir}/python%{pybasever}
 %global dynload_dir %{pylibdir}/lib-dynload
@@ -49,9 +49,9 @@
 # For example,
 #   foo/bar.py
 # now has bytecode at:
-#   foo/__pycache__/bar.cpython-35.pyc
-#   foo/__pycache__/bar.cpython-35.pyo
-%global bytecode_suffixes .cpython-35*.py?
+#   foo/__pycache__/bar.cpython-36.pyc
+#   foo/__pycache__/bar.cpython-36.pyo
+%global bytecode_suffixes .cpython-36*.py?
 
 # Python's configure script defines SOVERSION, and this is used in the Makefile
 # to determine INSTSONAME, the name of the libpython DSO:
@@ -111,8 +111,8 @@
 # ==================
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
-Version: %{pybasever}.1
-Release: 15%{?dist}
+Version: %{pybasever}.0a4
+Release: 1%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -180,7 +180,8 @@ BuildRequires: python3-pip
 # Source code and patches
 # =======================
 
-Source: http://www.python.org/ftp/python/%{version}/Python-%{version}.tar.xz
+Source: https://www.python.org/ftp/python/3.6.0/Python-%{version}.tar.xz
+#https://www.python.org/ftp/python/3.6.0/Python-3.6.0a3.tar.xz
 
 # Supply an RPM macro "py_byte_compile" for the python3-devel subpackage
 # to enable specfiles to selectively byte-compile individual files and paths
@@ -217,9 +218,9 @@ Patch1:         Python-3.1.1-rpath.patch
 # Patch sent upstream as http://bugs.python.org/issue14776
 # with some subsequent reworking to cope with LANG=C in an rpmbuild
 # (where sys.getfilesystemencoding() == 'ascii')
-Patch55: 00055-systemtap.patch
+Patch55: systemtap.patch
 
-Patch102: 00102-lib64.patch
+Patch102: lib64.patch
 
 # 00104 #
 # Only used when "%{_lib}" == "lib64"
@@ -282,7 +283,7 @@ Patch143: 00143-tsc-on-ppc.patch
 # (see http://bugs.python.org/issue16113), but the alterations were left in the
 # patch, since they may be useful again if upstream decides to rerevert sha3
 # implementation and OpenSSL still doesn't support it. For now, they're harmless.
-Patch146: 00146-hashlib-fips.patch
+Patch146: hashssl.patch
 
 # 00155 #
 # Avoid allocating thunks in ctypes unless absolutely necessary, to avoid
@@ -328,8 +329,8 @@ Patch163: 00163-disable-parts-of-test_socket-in-rpm-build.patch
 #   http://bugs.python.org/issue9263  (rhbz#614680)
 # hiding the proposed new macros/functions within gcmodule.c to avoid exposing
 # them within the extension API.
-# (rhbz#850013
-Patch170: 00170-gc-assertions.patch
+# (rhbz#850013)
+Patch170: gcnew.patch
 
 # 00178 #
 # Don't duplicate various FLAGS in sysconfig values
@@ -440,7 +441,7 @@ Patch209: 00209-fix-test-pyexpat-failure.patch
 # rhbz#1346345: https://bugzilla.redhat.com/show_bug.cgi?id=1346345
 # FIXED UPSTREAM: https://hg.python.org/cpython/rev/d590114c2394
 # Raise an error when STARTTLS fails
-Patch237: 00237-Raise-an-error-when-STARTTLS-fails.patch
+#Patch237: 00237-Raise-an-error-when-STARTTLS-fails.patch
 
 # 00241 #
 # CVE-2016-5636: http://seclists.org/oss-sec/2016/q2/560
@@ -449,7 +450,7 @@ Patch237: 00237-Raise-an-error-when-STARTTLS-fails.patch
 # https://hg.python.org/cpython/rev/5533a9e02b21
 # Fix possible integer overflow and heap corruption in zipimporter.get_data()
 # FIXED UPSTREAM: https://bugs.python.org/issue26171
-Patch241: 00241-CVE-2016-5636-buffer-overflow-in-zipimport-module-fix.patch
+#Patch241: 00241-CVE-2016-5636-buffer-overflow-in-zipimport-module-fix.patch
 
 # 00242 #
 # HTTPoxy attack (CVE-2016-1000110)
@@ -457,7 +458,7 @@ Patch241: 00241-CVE-2016-5636-buffer-overflow-in-zipimport-module-fix.patch
 # FIXED UPSTREAM: http://bugs.python.org/issue27568
 # Based on a patch by Rémi Rampin
 # Resolves: rhbz#1359177
-Patch242: 00242-CVE-2016-1000110-httpoxy.patch
+#Patch242: poxy.patch
 
 # 00243 #
 # Fix the triplet used on 64-bit MIPS
@@ -659,7 +660,7 @@ for f in md5module.c sha1module.c sha256module.c sha512module.c; do
 done
 
 %if 0%{with_rewheel}
-%global pip_version 7.1.0
+%global pip_version 8.1.2
 sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/ensurepip/__init__.py
 %endif
 
@@ -685,7 +686,7 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 %patch157 -p1
 %patch160 -p1
 %patch163 -p1
-%patch170 -p0
+%patch170 -p1
 %patch178 -p1
 %patch180 -p1
 %patch184 -p1
@@ -698,15 +699,15 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 
 %patch194 -p1
 %patch196 -p1
-%patch203 -p1
+#patch203 -p1 rebase, maybe it's ok to drop
 %patch205 -p1
 %patch206 -p1
-%patch207 -p1
-%patch208 -p1
-%patch209 -p1
-%patch237 -p1
-%patch241 -p1
-%patch242 -p1
+#patch207 -p1 Already upstream
+#patch208 -p1 rebase, maybe it's ok to drop
+#patch209 -p1
+#patch237 Upstream as of Python 3.6a2
+#patch241 Upstream as of Python 3.6a1
+#patch242 -p1
 %patch243 -p1
 
 # Currently (2010-01-15), http://docs.python.org/library is for 2.6, and there
@@ -743,7 +744,7 @@ BuildPython() {
   BinaryName=$2
   SymlinkName=$3
   ExtraConfigArgs=$4
-  PathFixWithThisBinary=$5
+  MakeTarget=$5
   MoreCFlags=$6
 
   ConfDir=build/$ConfName
@@ -782,7 +783,7 @@ BuildPython() {
   #    missing symbol AnnotateRWLockDestroy
   #
   # Invoke the build:
-  make EXTRA_CFLAGS="$CFLAGS $MoreCFlags" %{?_smp_mflags}
+  make EXTRA_CFLAGS="$CFLAGS $MoreCFlags" %{?_smp_mflags} $MakeTarget
 
   popd
   echo FINISHED: BUILD OF PYTHON FOR CONFIGURATION: $ConfDir
@@ -799,7 +800,7 @@ BuildPython debug \
 %else
   "--with-pydebug --with-count-allocs --with-call-profile --without-ensurepip" \
 %endif
-  false \
+  all \
   -O0
 %endif # with_debug_build
 
@@ -807,7 +808,7 @@ BuildPython optimized \
   python \
   python%{pybasever} \
   "--without-ensurepip" \
-  true
+  profile-opt
 
 # ======================================================
 # Installing the built code:
@@ -1341,6 +1342,7 @@ rm -fr %{buildroot}
 %dir %{pylibdir}/site-packages/
 %dir %{pylibdir}/site-packages/__pycache__/
 %{pylibdir}/site-packages/README
+%{pylibdir}/site-packages/README.txt
 %{pylibdir}/*.py
 %dir %{pylibdir}/__pycache__/
 %{pylibdir}/__pycache__/*%{bytecode_suffixes}
@@ -1395,7 +1397,7 @@ rm -fr %{buildroot}
 
 %{pylibdir}/logging
 %{pylibdir}/multiprocessing
-%{pylibdir}/plat-linux
+%{pylibdir}/plat-%{_arch}-linux%{_gnu}
 
 %dir %{pylibdir}/sqlite3/
 %dir %{pylibdir}/sqlite3/__pycache__/
@@ -1612,6 +1614,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Tue Aug 09 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.6.0a3-1
+- Update to the third alpha of 3.6
+
 * Tue Aug 09 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.5.1-15
 - Fix for CVE-2016-1000110 HTTPoxy attack
 - SPEC file cleanup
