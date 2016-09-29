@@ -395,20 +395,6 @@ Patch205: 00205-make-libpl-respect-lib64.patch
 # by debian but fedora infra uses only eabi without hf
 Patch206: 00206-remove-hf-from-arm-triplet.patch
 
-# 00209 #
-# Fix test breakage with version 2.2.0 of Expat
-# rhbz#1353918: https://bugzilla.redhat.com/show_bug.cgi?id=1353918
-# FIXED UPSTREAM: http://bugs.python.org/issue27369
-Patch209: 00209-fix-test-pyexpat-failure.patch
-
-# 00242 #
-# HTTPoxy attack (CVE-2016-1000110)
-# https://httpoxy.org/
-# FIXED UPSTREAM: http://bugs.python.org/issue27568
-# Based on a patch by Rémi Rampin
-# Resolves: rhbz#1359177
-Patch242: 00242-CVE-2016-1000110-httpoxy.patch
-
 # 00243 #
 # Fix the triplet used on 64-bit MIPS
 # rhbz#1322526: https://bugzilla.redhat.com/show_bug.cgi?id=1322526
@@ -607,9 +593,9 @@ rm -r Modules/zlib || exit 1
 # OpenSSL (and thus respects FIPS mode), and does not fall back to _md5
 # TODO: there seems to be no OpenSSL support in Python for sha3 so far
 # when it is there, also remove _sha3/ dir
-for f in md5module.c sha1module.c sha256module.c sha512module.c; do
-    rm Modules/$f
-done
+#for f in md5module.c sha1module.c sha256module.c sha512module.c; do
+#    rm Modules/$f
+#done
 
 %if 0%{with_rewheel}
 %global pip_version 8.1.2
@@ -632,13 +618,13 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 %patch111 -p1
 %patch132 -p1
 %patch137 -p1
-%patch143 -p1 -b .tsc-on-ppc
-%patch146 -p1
+#patch143 -p1 -b .tsc-on-ppc
+#patch146 -p1
 %patch155 -p1
 %patch157 -p1
 %patch160 -p1
 %patch163 -p1
-%patch170 -p0
+%patch170 -p1
 %patch178 -p1
 %patch180 -p1
 %patch184 -p1
@@ -651,8 +637,6 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 
 %patch205 -p1
 %patch206 -p1
-%patch209 -p1
-%patch242 -p1
 %patch243 -p1
 
 # Currently (2010-01-15), http://docs.python.org/library is for 2.6, and there
