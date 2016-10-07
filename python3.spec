@@ -52,9 +52,10 @@
 # For example,
 #   foo/bar.py
 # now has bytecode at:
-#   foo/__pycache__/bar.cpython-35.pyc
-#   foo/__pycache__/bar.cpython-35.pyo
-%global bytecode_suffixes .cpython-36*.py?
+#   foo/__pycache__/bar.cpython-36.pyc
+#   foo/__pycache__/bar.cpython-36.opt-1.pyc
+#	foo/__pycache__/bar.cpython-36.opt-2.pyc
+%global bytecode_suffixes .cpython-36*.pyc
 
 # Python's configure script defines SOVERSION, and this is used in the Makefile
 # to determine INSTSONAME, the name of the libpython DSO:
@@ -1204,6 +1205,18 @@ rm -fr %{buildroot}
 %doc LICENSE README
 %dir %{pylibdir}
 %dir %{dynload_dir}
+
+%{dynload_dir}/_blake2.%{SOABI_optimized}.so
+%{dynload_dir}/_md5.%{SOABI_optimized}.so
+%{dynload_dir}/_sha1.%{SOABI_optimized}.so
+%{dynload_dir}/_sha256.%{SOABI_optimized}.so
+%{dynload_dir}/_sha3.%{SOABI_optimized}.so
+%{dynload_dir}/_sha512.%{SOABI_optimized}.so
+
+%{dynload_dir}/_sysconfigdata_%{ABIFLAGS_optimized}_linux_%{_arch}-linux%{_gnu}.py
+%dir %{dynload_dir}/__pycache__/
+%{dynload_dir}/__pycache__/_sysconfigdata_%{ABIFLAGS_optimized}_linux_%{_arch}-linux%{_gnu}%{bytecode_suffixes}
+
 %{dynload_dir}/_bisect.%{SOABI_optimized}.so
 %{dynload_dir}/_bz2.%{SOABI_optimized}.so
 %{dynload_dir}/_codecs_cn.%{SOABI_optimized}.so
@@ -1266,6 +1279,7 @@ rm -fr %{buildroot}
 %dir %{pylibdir}/site-packages/
 %dir %{pylibdir}/site-packages/__pycache__/
 %{pylibdir}/site-packages/README
+%{pylibdir}/site-packages/README.txt
 %{pylibdir}/*.py
 %dir %{pylibdir}/__pycache__/
 %{pylibdir}/__pycache__/*%{bytecode_suffixes}
@@ -1320,7 +1334,6 @@ rm -fr %{buildroot}
 
 %{pylibdir}/logging
 %{pylibdir}/multiprocessing
-%{pylibdir}/plat-linux
 
 %dir %{pylibdir}/sqlite3/
 %dir %{pylibdir}/sqlite3/__pycache__/
@@ -1426,6 +1439,16 @@ rm -fr %{buildroot}
 
 # Analog of the -libs subpackage's files:
 # ...with debug builds of the built-in "extension" modules:
+%{dynload_dir}/_blake2.%{SOABI_debug}.so
+%{dynload_dir}/_md5.%{SOABI_debug}.so
+%{dynload_dir}/_sha1.%{SOABI_debug}.so
+%{dynload_dir}/_sha256.%{SOABI_debug}.so
+%{dynload_dir}/_sha3.%{SOABI_debug}.so
+%{dynload_dir}/_sha512.%{SOABI_debug}.so
+
+%{dynload_dir}/_sysconfigdata_%{ABIFLAGS_debug}_linux_%{_arch}-linux%{_gnu}.py
+%{dynload_dir}/__pycache__/_sysconfigdata_%{ABIFLAGS_debug}_linux_%{_arch}-linux%{_gnu}%{bytecode_suffixes}
+
 %{dynload_dir}/_bisect.%{SOABI_debug}.so
 %{dynload_dir}/_bz2.%{SOABI_debug}.so
 %{dynload_dir}/_codecs_cn.%{SOABI_debug}.so
