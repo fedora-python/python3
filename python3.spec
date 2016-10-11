@@ -1224,6 +1224,7 @@ rm -fr %{buildroot}
 %{dynload_dir}/_dbm.%{SOABI_optimized}.so
 %{dynload_dir}/_decimal.%{SOABI_optimized}.so
 %{dynload_dir}/_elementtree.%{SOABI_optimized}.so
+%{dynload_dir}/_futures.%{SOABI_optimized}.so
 %if %{with_gdbm}
 %{dynload_dir}/_gdbm.%{SOABI_optimized}.so
 %endif
@@ -1456,6 +1457,7 @@ rm -fr %{buildroot}
 %{dynload_dir}/_dbm.%{SOABI_debug}.so
 %{dynload_dir}/_decimal.%{SOABI_debug}.so
 %{dynload_dir}/_elementtree.%{SOABI_debug}.so
+%{dynload_dir}/_futures.%{SOABI_debug}.so
 %if %{with_gdbm}
 %{dynload_dir}/_gdbm.%{SOABI_debug}.so
 %endif
