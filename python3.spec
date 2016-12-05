@@ -116,7 +116,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
 Version: %{pybasever}.0
-Release: 0.4.%{?prerel}%{?dist}
+Release: 0.5.%{?prerel}%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -590,7 +590,7 @@ rm -r Modules/zlib || exit 1
 #done
 
 %if 0%{with_rewheel}
-%global pip_version 8.1.2
+%global pip_version 9.0.1
 sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/ensurepip/__init__.py
 %endif
 
@@ -1546,6 +1546,9 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Mon Dec 05 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.6.0-0.5.b4
+- Set to work with pip version 9.0.1
+
 * Fri Dec 02 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.6.0-0.4.b4
 - Update to Python 3.6.0 beta 4
 
