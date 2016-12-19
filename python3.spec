@@ -112,7 +112,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: python3
 Version: %{pybasever}.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -420,6 +420,16 @@ Patch243: 00243-fix-mips64-triplet.patch
 # FIXED UPSTREAM: https://bugs.python.org/issue26470
 Patch247: 00247-port-ssl-and-hashlib-to-OpenSSL-1.1.0.patch
 
+# 00251
+# Set values of prefix and exec_prefix to /usr/local if executable is
+# /usr/bin/python* to make pip and distutils install into separate location
+Patch251: 00251-set-python3-prefixes.patch
+
+# 00252
+# Add executable option to install.py command to make it work for
+# scripts specified as an entry_points
+Patch252: 00252-add-executable-option.patch
+
 # (New patches go here ^^^)
 #
 # When adding new patches to "python" and "python3" in Fedora, EL, etc.,
@@ -455,6 +465,7 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Obsoletes: python%{pyshortver}
 Provides: python%{pyshortver} = %{version}-%{release}
 
+Requires: system-python = %{version}-%{release}
 %if 0%{with_rewheel}
 Requires: python3-setuptools
 Requires: python3-pip
@@ -666,6 +677,8 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 %patch242 -p1
 %patch243 -p1
 %patch247 -p1
+%patch251 -p1
+%patch252 -p1
 
 # Currently (2010-01-15), http://docs.python.org/library is for 2.6, and there
 # are many differences between 2.6 and the Python 3 library.
@@ -1577,6 +1590,11 @@ rm -fr %{buildroot}
 # ======================================================
 
 %changelog
+* Mon Dec 19 2016 Michal Cyprian <mcyprian@redhat.com> - 3.5.2-8
+- Set values of prefix and exec_prefix to /usr/local for
+  /usr/bin/python* executables
+- Add --executable option to install.py command
+
 * Mon Dec 05 2016 Charalampos Stratakis <cstratak@redhat.com> - 3.5.2-7
 - Set to work with pip version 9.0.1
 
