@@ -1,14 +1,17 @@
 diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
-index 9474e9c..c0ce4c6 100644
+index 8e41290..25d6963 100644
 --- a/Lib/distutils/command/install.py
 +++ b/Lib/distutils/command/install.py
-@@ -30,14 +30,14 @@ WINDOWS_SCHEME = {
+@@ -29,15 +29,15 @@ WINDOWS_SCHEME = {
+ 
  INSTALL_SCHEMES = {
      'unix_prefix': {
-         'purelib': '$base/lib/python$py_version_short/site-packages',
+-        'purelib': '$base/lib/python$py_version_short/site-packages',
 -        'platlib': '$platbase/lib/python$py_version_short/site-packages',
-+        'platlib': '$platbase/lib64/python$py_version_short/site-packages',
-         'headers': '$base/include/python$py_version_short$abiflags/$dist_name',
+-        'headers': '$base/include/python$py_version_short$abiflags/$dist_name',
++        'purelib': '$base/lib/platform-python/site-packages',
++        'platlib': '$platbase/lib64/platform-python/site-packages',
++        'headers': '$base/include/platform-python$abiflags/$dist_name',
          'scripts': '$base/bin',
          'data'   : '$base',
          },
@@ -19,11 +22,20 @@ index 9474e9c..c0ce4c6 100644
          'headers': '$base/include/python/$dist_name',
          'scripts': '$base/bin',
          'data'   : '$base',
+@@ -59,7 +59,7 @@ if HAS_USER_SITE:
+         'purelib': '$usersite',
+         'platlib': '$usersite',
+         'headers':
+-            '$userbase/include/python$py_version_short$abiflags/$dist_name',
++            '$userbase/include/platform-python$abiflags/$dist_name',
+         'scripts': '$userbase/bin',
+         'data'   : '$userbase',
+         }
 diff --git a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
-index 026cca7..6d3e077 100644
+index 5c2670f..721be70 100644
 --- a/Lib/distutils/sysconfig.py
 +++ b/Lib/distutils/sysconfig.py
-@@ -132,8 +132,12 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
+@@ -129,8 +129,12 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
              prefix = plat_specific and EXEC_PREFIX or PREFIX
  
      if os.name == "posix":
@@ -33,23 +45,24 @@ index 026cca7..6d3e077 100644
 +            lib = "lib"
          libpython = os.path.join(prefix,
 -                                 "lib", "python" + get_python_version())
-+                                 lib, "python" + get_python_version())
++                                 lib, "platform-python")
          if standard_lib:
              return libpython
          else:
 diff --git a/Lib/site.py b/Lib/site.py
-index a84e3bb..ba0d3ea 100644
+index 386d2ad..91a2b7f 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -303,11 +303,15 @@ def getsitepackages(prefixes=None):
+@@ -304,11 +304,15 @@ def getsitepackages(prefixes=None):
          seen.add(prefix)
  
          if os.sep == '/':
 +            sitepackages.append(os.path.join(prefix, "lib64",
-+                                        "python" + sys.version[:3],
++                                        "platform-python",
 +                                        "site-packages"))
              sitepackages.append(os.path.join(prefix, "lib",
-                                         "python%d.%d" % sys.version_info[:2],
+-                                        "python%d.%d" % sys.version_info[:2],
++                                        "platform-python",
                                          "site-packages"))
          else:
              sitepackages.append(prefix)
@@ -58,57 +71,69 @@ index a84e3bb..ba0d3ea 100644
          if sys.platform == "darwin":
              # for framework builds *only* we add the standard Apple
 diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
-index b9bbfe5..2a5f29c 100644
+index d35b5eb..af9a664 100644
 --- a/Lib/sysconfig.py
 +++ b/Lib/sysconfig.py
-@@ -20,10 +20,10 @@ __all__ = [
+@@ -20,14 +20,14 @@ __all__ = [
  
  _INSTALL_SCHEMES = {
      'posix_prefix': {
 -        'stdlib': '{installed_base}/lib/python{py_version_short}',
 -        'platstdlib': '{platbase}/lib/python{py_version_short}',
-+        'stdlib': '{installed_base}/lib64/python{py_version_short}',
-+        'platstdlib': '{platbase}/lib64/python{py_version_short}',
-         'purelib': '{base}/lib/python{py_version_short}/site-packages',
+-        'purelib': '{base}/lib/python{py_version_short}/site-packages',
 -        'platlib': '{platbase}/lib/python{py_version_short}/site-packages',
-+        'platlib': '{platbase}/lib64/python{py_version_short}/site-packages',
++        'stdlib': '{installed_base}/lib64/platform-python',
++        'platstdlib': '{platbase}/lib64/platform-python',
++        'purelib': '{base}/lib/platform-python/site-packages',
++        'platlib': '{platbase}/lib64/platform-python/site-packages',
          'include':
-             '{installed_base}/include/python{py_version_short}{abiflags}',
+-            '{installed_base}/include/python{py_version_short}{abiflags}',
++            '{installed_base}/include/platform-python{abiflags}',
          'platinclude':
-@@ -61,10 +61,10 @@ _INSTALL_SCHEMES = {
+-            '{installed_platbase}/include/python{py_version_short}{abiflags}',
++            '{installed_platbase}/include/platform-python{abiflags}',
+         'scripts': '{base}/bin',
+         'data': '{base}',
+         },
+@@ -61,11 +61,11 @@ _INSTALL_SCHEMES = {
          'data': '{userbase}',
          },
      'posix_user': {
 -        'stdlib': '{userbase}/lib/python{py_version_short}',
 -        'platstdlib': '{userbase}/lib/python{py_version_short}',
-+        'stdlib': '{userbase}/lib64/python{py_version_short}',
-+        'platstdlib': '{userbase}/lib64/python{py_version_short}',
-         'purelib': '{userbase}/lib/python{py_version_short}/site-packages',
+-        'purelib': '{userbase}/lib/python{py_version_short}/site-packages',
 -        'platlib': '{userbase}/lib/python{py_version_short}/site-packages',
-+        'platlib': '{userbase}/lib64/python{py_version_short}/site-packages',
-         'include': '{userbase}/include/python{py_version_short}',
+-        'include': '{userbase}/include/python{py_version_short}',
++        'stdlib': '{userbase}/lib64/platform-python',
++        'platstdlib': '{userbase}/lib64/platform-python',
++        'purelib': '{userbase}/lib/platform-python/site-packages',
++        'platlib': '{userbase}/lib64/platform-python/site-packages',
++        'include': '{userbase}/include/platform-python',
          'scripts': '{userbase}/bin',
          'data': '{userbase}',
+         },
 diff --git a/Lib/test/test_site.py b/Lib/test/test_site.py
-index f698927..bc977b5 100644
+index 4029617..9c98c06 100644
 --- a/Lib/test/test_site.py
 +++ b/Lib/test/test_site.py
-@@ -248,8 +248,8 @@ class HelperFunctionsTests(unittest.TestCase):
+@@ -260,9 +260,9 @@ class HelperFunctionsTests(unittest.TestCase):
              self.assertEqual(dirs[1], wanted)
          elif os.sep == '/':
              # OS X non-framwework builds, Linux, FreeBSD, etc
 -            self.assertEqual(len(dirs), 1)
 -            wanted = os.path.join('xoxo', 'lib',
+-                                  'python%d.%d' % sys.version_info[:2],
 +            self.assertEqual(len(dirs), 2)
 +            wanted = os.path.join('xoxo', 'lib64',
-                                   'python%d.%d' % sys.version_info[:2],
++                                  'platform-python',
                                    'site-packages')
              self.assertEqual(dirs[0], wanted)
+         else:
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 8fa7934..a693917 100644
+index e61fd55..e7414de 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
-@@ -126,7 +126,7 @@ LIBDIR=		@libdir@
+@@ -133,14 +133,14 @@ LIBDIR=		@libdir@
  MANDIR=		@mandir@
  INCLUDEDIR=	@includedir@
  CONFINCLUDEDIR=	$(exec_prefix)/include
@@ -117,8 +142,19 @@ index 8fa7934..a693917 100644
  ABIFLAGS=	@ABIFLAGS@
  
  # Detailed destination directories
+-BINLIBDEST=	$(LIBDIR)/python$(VERSION)
+-LIBDEST=	$(SCRIPTDIR)/python$(VERSION)
+-INCLUDEPY=	$(INCLUDEDIR)/python$(LDVERSION)
+-CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python$(LDVERSION)
++BINLIBDEST=	$(LIBDIR)/platform-python
++LIBDEST=	$(SCRIPTDIR)/platform-python
++INCLUDEPY=	$(INCLUDEDIR)/platform-python$(LDVERSION)
++CONFINCLUDEPY=	$(CONFINCLUDEDIR)/platform-python$(LDVERSION)
+ 
+ # Symbols used for using shared libraries
+ SHLIB_SUFFIX=	@SHLIB_SUFFIX@
 diff --git a/Modules/getpath.c b/Modules/getpath.c
-index 65b47a3..eaa756c 100644
+index 0f91643..c4055be 100644
 --- a/Modules/getpath.c
 +++ b/Modules/getpath.c
 @@ -494,7 +494,7 @@ calculate_path(void)
@@ -126,7 +162,7 @@ index 65b47a3..eaa756c 100644
      _prefix = Py_DecodeLocale(PREFIX, NULL);
      _exec_prefix = Py_DecodeLocale(EXEC_PREFIX, NULL);
 -    lib_python = Py_DecodeLocale("lib/python" VERSION, NULL);
-+    lib_python = Py_DecodeLocale("lib64/python" VERSION, NULL);
++    lib_python = Py_DecodeLocale("lib64/platform-python", NULL);
  
      if (!_pythonpath || !_prefix || !_exec_prefix || !lib_python) {
          Py_FatalError(
@@ -149,10 +185,10 @@ index 65b47a3..eaa756c 100644
      /* If we found EXEC_PREFIX do *not* reduce it!  (Yet.) */
  
 diff --git a/setup.py b/setup.py
-index 0f2dfc4..da37896 100644
+index fe47797..3e5018a 100644
 --- a/setup.py
 +++ b/setup.py
-@@ -492,7 +492,7 @@ class PyBuildExt(build_ext):
+@@ -491,7 +491,7 @@ class PyBuildExt(build_ext):
          # directories (i.e. '.' and 'Include') must be first.  See issue
          # 10520.
          if not cross_compiling:
@@ -161,7 +197,7 @@ index 0f2dfc4..da37896 100644
              add_dir_to_list(self.compiler.include_dirs, '/usr/local/include')
          # only change this for cross builds for 3.3, issues on Mageia
          if cross_compiling:
-@@ -780,11 +780,11 @@ class PyBuildExt(build_ext):
+@@ -783,11 +783,11 @@ class PyBuildExt(build_ext):
              elif curses_library:
                  readline_libs.append(curses_library)
              elif self.compiler.find_library_file(lib_dirs +
@@ -175,7 +211,7 @@ index 0f2dfc4..da37896 100644
                                     extra_link_args=readline_extra_link_args,
                                     libraries=readline_libs) )
          else:
-@@ -821,8 +821,8 @@ class PyBuildExt(build_ext):
+@@ -824,8 +824,8 @@ class PyBuildExt(build_ext):
              if krb5_h:
                  ssl_incs += krb5_h
          ssl_libs = find_library_file(self.compiler, 'ssl',lib_dirs,

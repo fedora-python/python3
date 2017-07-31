@@ -41,7 +41,7 @@
 # pybasever without the dot:
 %global pyshortver 36
 
-%global pylibdir %{_libdir}/python%{pybasever}
+%global pylibdir %{_libdir}/%{name}
 %global dynload_dir %{pylibdir}/lib-dynload
 
 # SOABI is defined in the upstream configure.in from Python-3.2a2 onwards,
@@ -206,7 +206,7 @@ Source: https://www.python.org/ftp/python/%{version}/Python-%{version}.tar.xz
 # Supply an RPM macro "py_byte_compile" for the python3-devel subpackage
 # to enable specfiles to selectively byte-compile individual files and paths
 # with different Python runtimes as necessary:
-Source3: macros.pybytecompile%{pybasever}
+Source3: macros.pybytecompile-%{name}
 
 # Systemtap tapset to make it easier to use the systemtap static probes
 # (actually a template; LIBRARY_PATH will get fixed up during install)
@@ -919,7 +919,7 @@ cp -ar Tools/demo %{buildroot}%{pylibdir}/Tools/
 rm -f %{buildroot}%{pylibdir}/email/test/data/audiotest.au %{buildroot}%{pylibdir}/test/audiotest.au
 
 %if "%{_lib}" == "lib64"
-install -d -m 0755 %{buildroot}/%{_prefix}/lib/python%{pybasever}/site-packages/__pycache__
+install -d -m 0755 %{buildroot}/%{_prefix}/lib/%{name}/site-packages/__pycache__
 %endif
 
 # Make python3-devel multilib-ready (bug #192747, #139911)
@@ -946,7 +946,7 @@ install -d -m 0755 %{buildroot}/%{_prefix}/lib/python%{pybasever}/site-packages/
 %global PyIncludeDirs python%{LDVERSION_optimized} python%{LDVERSION_debug}
 
 %else
-%global PyIncludeDirs python%{LDVERSION_optimized}
+%global PyIncludeDirs platform-python%{LDVERSION_optimized}
 %endif
 
 for PyIncludeDir in %{PyIncludeDirs} ; do
@@ -1030,7 +1030,7 @@ iconv -f iso8859-1 -t utf-8 %{buildroot}/%{pylibdir}/Demo/rpc/README > README.co
 # compile *.pyc
 find %{buildroot} -type f -a -name "*.py" -print0 | \
     LD_LIBRARY_PATH="%{buildroot}%{dynload_dir}/:%{buildroot}%{_libdir}" \
-    PYTHONPATH="%{buildroot}%{_libdir}/python%{pybasever} %{buildroot}%{_libdir}/python%{pybasever}/site-packages" \
+    PYTHONPATH="%{buildroot}%{_libdir}/%{name} %{buildroot}%{_libdir}/%{name}/site-packages" \
     xargs -0 %{buildroot}%{_bindir}/python%{pybasever} -O -c 'import py_compile, sys; [py_compile.compile(f, dfile=f.partition("%{buildroot}")[2], optimize=opt) for opt in range(3) for f in sys.argv[1:]]' || :
 
 # Fixup permissions for shared libraries from non-standard 555 to standard 755:
@@ -1138,7 +1138,7 @@ cp %{buildroot}%{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/platform
 # first of all, check timestamps of bytecode files
 find %{buildroot} -type f -a -name "*.py" -print0 | \
     LD_LIBRARY_PATH="%{buildroot}%{dynload_dir}/:%{buildroot}%{_libdir}" \
-    PYTHONPATH="%{buildroot}%{_libdir}/python%{pybasever} %{buildroot}%{_libdir}/python%{pybasever}/site-packages" \
+    PYTHONPATH="%{buildroot}%{_libdir}/%{name} %{buildroot}%{_libdir}/%{name}/site-packages" \
     xargs -0 %{buildroot}%{_bindir}/python%{pybasever} %{SOURCE8}
 
 # For ppc64 we need a larger stack than default (rhbz#1292462)
@@ -1381,9 +1381,9 @@ fi
 %{pylibdir}/xml
 
 %if "%{_lib}" == "lib64"
-%attr(0755,root,root) %dir %{_prefix}/lib/python%{pybasever}
-%attr(0755,root,root) %dir %{_prefix}/lib/python%{pybasever}/site-packages
-%attr(0755,root,root) %dir %{_prefix}/lib/python%{pybasever}/site-packages/__pycache__/
+%attr(0755,root,root) %dir %{_prefix}/lib/%{name}
+%attr(0755,root,root) %dir %{_prefix}/lib/%{name}/site-packages
+%attr(0755,root,root) %dir %{_prefix}/lib/%{name}/site-packages/__pycache__/
 %endif
 
 # "Makefile" and the config-32/64.h file are needed by
@@ -1391,8 +1391,8 @@ fi
 # package, along with their parent directories (bug 531901):
 %dir %{pylibdir}/config-%{LDVERSION_optimized}-%{_arch}-linux%{_gnu}/
 %{pylibdir}/config-%{LDVERSION_optimized}-%{_arch}-linux%{_gnu}/Makefile
-%dir %{_includedir}/python%{LDVERSION_optimized}/
-%{_includedir}/python%{LDVERSION_optimized}/%{_pyconfig_h}
+%dir %{_includedir}/platform-python%{LDVERSION_optimized}/
+%{_includedir}/platform-python%{LDVERSION_optimized}/%{_pyconfig_h}
 
 %{_libdir}/%{py_INSTSONAME_optimized}
 %{_libdir}/libpython3.so
@@ -1472,8 +1472,8 @@ fi
 %{pylibdir}/config-%{LDVERSION_optimized}-%{_arch}-linux%{_gnu}/*
 %exclude %{pylibdir}/config-%{LDVERSION_optimized}-%{_arch}-linux%{_gnu}/Makefile
 %{pylibdir}/distutils/command/wininst-*.exe
-%{_includedir}/python%{LDVERSION_optimized}/*.h
-%exclude %{_includedir}/python%{LDVERSION_optimized}/%{_pyconfig_h}
+%{_includedir}/platform-python%{LDVERSION_optimized}/*.h
+%exclude %{_includedir}/platform-python%{LDVERSION_optimized}/%{_pyconfig_h}
 %doc Misc/README.valgrind Misc/valgrind-python.supp Misc/gdbinit
 %{_bindir}/python3-config
 %{_bindir}/python%{pybasever}-config
@@ -1483,7 +1483,7 @@ fi
 %{_libdir}/pkgconfig/python-%{LDVERSION_optimized}.pc
 %{_libdir}/pkgconfig/python-%{pybasever}.pc
 %{_libdir}/pkgconfig/python3.pc
-%{_rpmconfigdir}/macros.d/macros.pybytecompile%{pybasever}
+%{_rpmconfigdir}/macros.d/macros.pybytecompile-%{name}
 %{_rpmconfigdir}/macros.d/macros.platformpython
 
 %files tools
