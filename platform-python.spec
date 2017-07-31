@@ -131,7 +131,7 @@
 # Top-level metadata
 # ==================
 Summary: Version 3 of the Python programming language aka Python 3000
-Name: python3
+Name: platform-python
 Version: %{pybasever}.2
 Release: 7%{?dist}
 License: Python
