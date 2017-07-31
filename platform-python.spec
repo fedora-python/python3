@@ -1208,9 +1208,9 @@ rm -fr %{buildroot}
 
 %postun libs -p /sbin/ldconfig
 
-%post -n platform-python-libs -p /sbin/ldconfig
+%post libs-devel -p /sbin/ldconfig
 
-%postun -n platform-python-libs -p /sbin/ldconfig
+%postun libs-devel -p /sbin/ldconfig
 
 %post
 /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
