@@ -472,17 +472,9 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 URL: https://www.python.org/
 
 # See notes in bug 532118:
-Provides: python(abi) = %{pybasever}
+Provides: platform-python(abi) = %{pybasever}
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-
-# In order to support multiple python interpreters, apart from the system python3,
-# for development purposes, new packages were introduced which can be installed in parallel
-# with the main python3 package (e.g. 1369688), with the naming scheme 'python<version>',
-# however in order to keep the upgrade path clean we need to Obsolete and Provide
-# these packages at the main python3 package.
-Obsoletes: python%{pyshortver}
-Provides: python%{pyshortver} = %{version}-%{release}
 
 %if 0%{with_rewheel}
 Requires: python3-setuptools
@@ -509,20 +501,17 @@ implementation is within the "python3-libs" and "system-python-libs" packages.
 %package libs
 Summary:        Python runtime libraries
 Group:          Development/Libraries
-# For Modularity purpose we need not to include the dist-tag int he dependency
-%if %(d="%{?dist}"; [ "${d#module-base-runtime-}x" != "${d}x" ] && echo 1 || echo 0)
-Requires:       system-python-libs%{?_isa} = %{version}
-%else
-Requires:       system-python-libs%{?_isa} = %{version}-%{release}
-%endif
 
 # expat 2.1.0 added the symbol XML_SetHashSalt without bumping SONAME.  We use
 # this symbol (in pyexpat), so we must explicitly state this dependency to
 # prevent "import pyexpat" from failing with a linker error if someone hasn't
 # yet upgraded expat:
 Requires: expat >= 2.1.0
-Provides: python3-enum34 = 1.0.4-5%{?dist}
-Obsoletes: python3-enum34 < 1.0.4-5%{?dist}
+
+%define __requires_exclude ^(/usr/bin/python3.*|python\\(abi\\) = 3\\..*)$
+
+# Python 3 built with glibc >= 2.24.90-26 needs to require it (rhbz#1410644).
+Requires: glibc%{?_isa} >= 2.24.90-26
 
 %description libs
 This package contains runtime libraries for use by Python:
@@ -530,29 +519,21 @@ This package contains runtime libraries for use by Python:
 a scripting language, and by the main "python3" executable
 - the Python standard library
 
-%package -n system-python
-Summary:        System Python executable
-Group:          Development/Libraries
-Requires:       system-python-libs%{?_isa} = %{version}-%{release}
-Provides:       system-python(abi) = %{pybasever}
-
-%description -n system-python
-System Python provides a binary interpreter which uses system-python-libs,
-a subset of standard Python library considered essential to run various tools,
-requiring Python, that consider themselves "system tools".
-
-%package -n system-python-libs
-Summary:        System Python runtime libraries
+%package libs-devel
+Summary:        Python runtime libraries
 Group:          Development/Libraries
 
-%define __requires_exclude ^(/usr/bin/python3.*|python\\(abi\\) = 3\\..*)$
-
+# expat 2.1.0 added the symbol XML_SetHashSalt without bumping SONAME.  We use
+# this symbol (in pyexpat), so we must explicitly state this dependency to
+# prevent "import pyexpat" from failing with a linker error if someone hasn't
+# yet upgraded expat:
 Requires: expat >= 2.1.0
-# Python 3 built with glibc >= 2.24.90-26 needs to require it (rhbz#1410644).
-Requires: glibc%{?_isa} >= 2.24.90-26
 
-%description -n system-python-libs
-This package contains files used to embed System Python into applications.
+%description libs-devel
+This package contains runtime libraries for use by Python:
+- the libpython dynamic library, for use by applications that embed Python as
+a scripting language, and by the main "python3" executable
+- the Python standard library
 
 %package devel
 Summary: Libraries and header files needed for Python development
@@ -1227,9 +1208,9 @@ rm -fr %{buildroot}
 
 %postun libs -p /sbin/ldconfig
 
-%post -n system-python-libs -p /sbin/ldconfig
+%post -n platform-python-libs -p /sbin/ldconfig
 
-%postun -n system-python-libs -p /sbin/ldconfig
+%postun -n platform-python-libs -p /sbin/ldconfig
 
 %post
 /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
@@ -1249,6 +1230,7 @@ fi
 %doc README.rst
 %{_bindir}/pydoc*
 %{_bindir}/python3
+%{_libexecdir}/platform-python
 %{_bindir}/python%{pybasever}
 %{_bindir}/python%{pybasever}m
 %{_bindir}/pyvenv
@@ -1256,77 +1238,6 @@ fi
 %{_mandir}/*/*
 
 %files libs
-%defattr(-,root,root,-)
-%license LICENSE
-%doc README.rst
-
-%{pylibdir}/lib2to3
-%exclude %{pylibdir}/lib2to3/tests
-
-%dir %{pylibdir}/unittest/
-%dir %{pylibdir}/unittest/__pycache__/
-%{pylibdir}/unittest/*.py
-%{pylibdir}/unittest/__pycache__/*%{bytecode_suffixes}
-
-%dir %{pylibdir}/asyncio/
-%dir %{pylibdir}/asyncio/__pycache__/
-%{pylibdir}/asyncio/*.py
-%{pylibdir}/asyncio/__pycache__/*%{bytecode_suffixes}
-
-%dir %{pylibdir}/venv/
-%dir %{pylibdir}/venv/__pycache__/
-%{pylibdir}/venv/*.py
-%{pylibdir}/venv/__pycache__/*%{bytecode_suffixes}
-%{pylibdir}/venv/scripts
-
-%{pylibdir}/wsgiref
-%{pylibdir}/xmlrpc
-
-%dir %{pylibdir}/ensurepip/
-%dir %{pylibdir}/ensurepip/__pycache__/
-%{pylibdir}/ensurepip/*.py
-%{pylibdir}/ensurepip/__pycache__/*%{bytecode_suffixes}
-%exclude %{pylibdir}/ensurepip/_bundled
-
-%if 0%{?with_rewheel}
-%dir %{pylibdir}/ensurepip/rewheel/
-%dir %{pylibdir}/ensurepip/rewheel/__pycache__/
-%{pylibdir}/ensurepip/rewheel/*.py
-%{pylibdir}/ensurepip/rewheel/__pycache__/*%{bytecode_suffixes}
-%endif
-
-%{pylibdir}/idlelib
-
-%dir %{pylibdir}/test/
-%dir %{pylibdir}/test/__pycache__/
-%dir %{pylibdir}/test/support/
-%dir %{pylibdir}/test/support/__pycache__/
-%{pylibdir}/test/__init__.py
-%{pylibdir}/test/__pycache__/__init__%{bytecode_suffixes}
-%{pylibdir}/test/support/__init__.py
-%{pylibdir}/test/support/__pycache__/__init__%{bytecode_suffixes}
-
-%dir %{pylibdir}/concurrent/
-%dir %{pylibdir}/concurrent/__pycache__/
-%{pylibdir}/concurrent/*.py
-%{pylibdir}/concurrent/__pycache__/*%{bytecode_suffixes}
-
-%dir %{pylibdir}/concurrent/futures/
-%dir %{pylibdir}/concurrent/futures/__pycache__/
-%{pylibdir}/concurrent/futures/*.py
-%{pylibdir}/concurrent/futures/__pycache__/*%{bytecode_suffixes}
-
-%{pylibdir}/pydoc_data
-
-##################################################################################
-
-%files -n system-python
-%defattr(-,root,root,-)
-%license LICENSE
-%doc README.rst
-%{_libexecdir}/system-python
-
-%files -n system-python-libs
 %defattr(-,root,root,-)
 %license LICENSE
 %doc README.rst
@@ -1491,6 +1402,70 @@ fi
 %{tapsetdir}/%{libpython_stp_optimized}
 %doc systemtap-example.stp pyfuntop.stp
 %endif
+
+%files libs-devel
+%defattr(-,root,root,-)
+%license LICENSE
+%doc README.rst
+
+%{pylibdir}/lib2to3
+%exclude %{pylibdir}/lib2to3/tests
+
+%dir %{pylibdir}/unittest/
+%dir %{pylibdir}/unittest/__pycache__/
+%{pylibdir}/unittest/*.py
+%{pylibdir}/unittest/__pycache__/*%{bytecode_suffixes}
+
+%dir %{pylibdir}/asyncio/
+%dir %{pylibdir}/asyncio/__pycache__/
+%{pylibdir}/asyncio/*.py
+%{pylibdir}/asyncio/__pycache__/*%{bytecode_suffixes}
+
+%dir %{pylibdir}/venv/
+%dir %{pylibdir}/venv/__pycache__/
+%{pylibdir}/venv/*.py
+%{pylibdir}/venv/__pycache__/*%{bytecode_suffixes}
+%{pylibdir}/venv/scripts
+
+%{pylibdir}/wsgiref
+%{pylibdir}/xmlrpc
+
+%dir %{pylibdir}/ensurepip/
+%dir %{pylibdir}/ensurepip/__pycache__/
+%{pylibdir}/ensurepip/*.py
+%{pylibdir}/ensurepip/__pycache__/*%{bytecode_suffixes}
+%exclude %{pylibdir}/ensurepip/_bundled
+
+%if 0%{?with_rewheel}
+%dir %{pylibdir}/ensurepip/rewheel/
+%dir %{pylibdir}/ensurepip/rewheel/__pycache__/
+%{pylibdir}/ensurepip/rewheel/*.py
+%{pylibdir}/ensurepip/rewheel/__pycache__/*%{bytecode_suffixes}
+%endif
+
+%{pylibdir}/idlelib
+
+%dir %{pylibdir}/test/
+%dir %{pylibdir}/test/__pycache__/
+%dir %{pylibdir}/test/support/
+%dir %{pylibdir}/test/support/__pycache__/
+%{pylibdir}/test/__init__.py
+%{pylibdir}/test/__pycache__/__init__%{bytecode_suffixes}
+%{pylibdir}/test/support/__init__.py
+%{pylibdir}/test/support/__pycache__/__init__%{bytecode_suffixes}
+
+%dir %{pylibdir}/concurrent/
+%dir %{pylibdir}/concurrent/__pycache__/
+%{pylibdir}/concurrent/*.py
+%{pylibdir}/concurrent/__pycache__/*%{bytecode_suffixes}
+
+%dir %{pylibdir}/concurrent/futures/
+%dir %{pylibdir}/concurrent/futures/__pycache__/
+%{pylibdir}/concurrent/futures/*.py
+%{pylibdir}/concurrent/futures/__pycache__/*%{bytecode_suffixes}
+
+%{pylibdir}/pydoc_data
+
 
 %files devel
 %defattr(-,root,root)
