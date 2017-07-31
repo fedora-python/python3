@@ -83,9 +83,6 @@
 # and halt the build)
 %global py_SOVERSION 1.0
 %global py_INSTSONAME_optimized libpython%{LDVERSION_optimized}.so.%{py_SOVERSION}
-%global py_INSTSONAME_debug     libpython%{LDVERSION_debug}.so.%{py_SOVERSION}
-
-%global with_debug_build 0
 
 %global with_gdb_hooks 1
 
@@ -589,38 +586,6 @@ in production.
 You might want to install the python3-test package if you're developing
 python code that uses more than just unittest and/or test_support.py.
 
-%if 0%{?with_debug_build}
-%package debug
-Summary: Debug version of the Python runtime
-Group: Applications/System
-
-# The debug build is an all-in-one package version of the regular build, and
-# shares the same .py/.pyc files and directories as the regular build.  Hence
-# we depend on all of the subpackages of the regular build:
-Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-Requires: %{name}-devel%{?_isa} = %{version}-%{release}
-Requires: %{name}-test%{?_isa} = %{version}-%{release}
-Requires: %{name}-tkinter%{?_isa} = %{version}-%{release}
-Requires: %{name}-tools%{?_isa} = %{version}-%{release}
-
-%description debug
-python3-debug provides a version of the Python runtime with numerous debugging
-features enabled, aimed at advanced Python users, such as developers of Python
-extension modules.
-
-This version uses more memory and will be slower than the regular Python build,
-but is useful for tracking down reference-counting issues, and other bugs.
-
-The bytecodes are unchanged, so that .pyc files are compatible between the two
-versions of Python, but the debugging features mean that C/C++ extension
-modules are ABI-incompatible with those built for the standard runtime.
-
-It shares installation directories with the standard Python runtime, so that
-.py and .pyc files can be shared. All compiled extension modules gain a "_d"
-suffix ("foo_d.so" rather than "foo.so") so that each Python implementation
-can load its own extensions.
-%endif # with_debug_build
 
 # ======================================================
 # The prep phase of the build:
@@ -789,19 +754,6 @@ BuildPython() {
 
 # Use "BuildPython" to support building with different configurations:
 
-%if 0%{?with_debug_build}
-BuildPython debug \
-  python-debug \
-  python%{pybasever}-debug \
-%ifarch %{ix86} x86_64 ppc %{power64}
-  "--with-pydebug --without-ensurepip" \
-%else
-  "--with-pydebug --without-ensurepip" \
-%endif
-  false \
-  -O0
-%endif # with_debug_build
-
 BuildPython optimized \
   python \
   python%{pybasever} \
@@ -874,13 +826,6 @@ make install DESTDIR=%{buildroot} INSTALL="install -p" EXTRA_CFLAGS="$MoreCFlags
 
 # Use "InstallPython" to support building with different configurations:
 
-# Install the "debug" build first, so that we can move some files aside
-%if 0%{?with_debug_build}
-InstallPython debug \
-  %{py_INSTSONAME_debug} \
-  -O0
-%endif # with_debug_build
-
 # Now the optimized build:
 InstallPython optimized \
   %{py_INSTSONAME_optimized}
@@ -934,20 +879,12 @@ install -d -m 0755 %{buildroot}/%{_prefix}/lib/%{name}/site-packages/__pycache__
 
 # ABIFLAGS, LDVERSION and SOABI are in the upstream Makefile
 %global ABIFLAGS_optimized m
-%global ABIFLAGS_debug     dm
 
 %global LDVERSION_optimized %{pybasever}%{ABIFLAGS_optimized}
-%global LDVERSION_debug     %{pybasever}%{ABIFLAGS_debug}
 
 %global SOABI_optimized cpython-%{pyshortver}%{ABIFLAGS_optimized}-%{_arch}-linux%{_gnu}
-%global SOABI_debug     cpython-%{pyshortver}%{ABIFLAGS_debug}-%{_arch}-linux%{_gnu}
 
-%if 0%{?with_debug_build}
-%global PyIncludeDirs python%{LDVERSION_optimized} python%{LDVERSION_debug}
-
-%else
 %global PyIncludeDirs platform-python%{LDVERSION_optimized}
-%endif
 
 for PyIncludeDir in %{PyIncludeDirs} ; do
   mv %{buildroot}%{_includedir}/$PyIncludeDir/pyconfig.h \
@@ -1064,16 +1001,6 @@ for Module in %{buildroot}/%{dynload_dir}/*.so ; do
     esac
 done
 
-# Create "/usr/bin/python3-debug", a symlink to the python3 debug binary, to
-# avoid the user having to know the precise version and ABI flags.  (see
-# e.g. rhbz#676748):
-%if 0%{?with_debug_build}
-ln -s \
-  %{_bindir}/python%{LDVERSION_debug} \
-  %{buildroot}%{_bindir}/python3-debug
-%endif
-
-#
 # Systemtap hooks:
 #
 %if 0%{?with_systemtap}
@@ -1082,27 +1009,14 @@ ln -s \
 mkdir -p %{buildroot}%{tapsetdir}
 %ifarch %{power64} s390x x86_64 ia64 alpha sparc64 aarch64 %{mips64}
 %global libpython_stp_optimized libpython%{pybasever}-64.stp
-%global libpython_stp_debug     libpython%{pybasever}-debug-64.stp
 %else
 %global libpython_stp_optimized libpython%{pybasever}-32.stp
-%global libpython_stp_debug     libpython%{pybasever}-debug-32.stp
 %endif
 
 sed \
    -e "s|LIBRARY_PATH|%{_libdir}/%{py_INSTSONAME_optimized}|" \
    %{_sourcedir}/libpython.stp \
    > %{buildroot}%{tapsetdir}/%{libpython_stp_optimized}
-
-%if 0%{?with_debug_build}
-# In Python 3, python3 and python3-debug don't point to the same binary,
-# so we have to replace "python3" with "python3-debug" to get systemtap
-# working with debug build
-sed \
-   -e "s|LIBRARY_PATH|%{_libdir}/%{py_INSTSONAME_debug}|" \
-   -e 's|"python3"|"python3-debug"|' \
-   %{_sourcedir}/libpython.stp \
-   > %{buildroot}%{tapsetdir}/%{libpython_stp_debug}
-%endif # with_debug_build
 
 %endif # with_systemtap
 
@@ -1113,16 +1027,6 @@ echo -e '#!/bin/sh\nexec `dirname $0`/python%{LDVERSION_optimized}-`uname -m`-co
 echo '[ $? -eq 127 ] && echo "Could not find python%{LDVERSION_optimized}-`uname -m`-config. Look around to see available arches." >&2' >> \
   %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
   chmod +x %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
-
-%if 0%{?with_debug_build}
-# Rename the -debug script that differs on different arches to arch specific name
-mv %{buildroot}%{_bindir}/python%{LDVERSION_debug}-{,`uname -m`-}config
-echo -e '#!/bin/sh\nexec `dirname $0`/python%{LDVERSION_debug}-`uname -m`-config "$@"' > \
-  %{buildroot}%{_bindir}/python%{LDVERSION_debug}-config
-echo '[ $? -eq 127 ] && echo "Could not find python%{LDVERSION_debug}-`uname -m`-config. Look around to see available arches." >&2' >> \
-  %{buildroot}%{_bindir}/python%{LDVERSION_debug}-config
-  chmod +x %{buildroot}%{_bindir}/python%{LDVERSION_debug}-config
-%endif # with_debug_build
 
 # Platform Python: Copy the executable to libexec
 mkdir -p %{buildroot}%{_libexecdir}
@@ -1184,9 +1088,6 @@ CheckPython() {
 %if 0%{run_selftest_suite}
 
 # Check each of the configurations:
-%if 0%{?with_debug_build}
-CheckPython debug
-%endif # with_debug_build
 CheckPython optimized
 
 %endif # run_selftest_suite
@@ -1523,125 +1424,6 @@ fi
 %{pylibdir}/lib2to3/tests
 %{pylibdir}/tkinter/test
 %{pylibdir}/unittest/test
-
-
-# We don't bother splitting the debug build out into further subpackages:
-# if you need it, you're probably a developer.
-
-# Hence the manifest is the combination of analogous files in the manifests of
-# all of the other subpackages
-
-%if 0%{?with_debug_build}
-%files debug
-%defattr(-,root,root,-)
-
-# Analog of the core subpackage's files:
-%{_bindir}/python%{LDVERSION_debug}
-%{_bindir}/python3-debug
-
-# Analog of the -libs subpackage's files:
-# ...with debug builds of the built-in "extension" modules:
-
-%{dynload_dir}/_blake2.%{SOABI_debug}.so
-%{dynload_dir}/_md5.%{SOABI_debug}.so
-%{dynload_dir}/_sha1.%{SOABI_debug}.so
-%{dynload_dir}/_sha256.%{SOABI_debug}.so
-%{dynload_dir}/_sha3.%{SOABI_debug}.so
-%{dynload_dir}/_sha512.%{SOABI_debug}.so
-
-%{dynload_dir}/_asyncio.%{SOABI_debug}.so
-%{dynload_dir}/_bisect.%{SOABI_debug}.so
-%{dynload_dir}/_bz2.%{SOABI_debug}.so
-%{dynload_dir}/_codecs_cn.%{SOABI_debug}.so
-%{dynload_dir}/_codecs_hk.%{SOABI_debug}.so
-%{dynload_dir}/_codecs_iso2022.%{SOABI_debug}.so
-%{dynload_dir}/_codecs_jp.%{SOABI_debug}.so
-%{dynload_dir}/_codecs_kr.%{SOABI_debug}.so
-%{dynload_dir}/_codecs_tw.%{SOABI_debug}.so
-%{dynload_dir}/_crypt.%{SOABI_debug}.so
-%{dynload_dir}/_csv.%{SOABI_debug}.so
-%{dynload_dir}/_ctypes.%{SOABI_debug}.so
-%{dynload_dir}/_curses.%{SOABI_debug}.so
-%{dynload_dir}/_curses_panel.%{SOABI_debug}.so
-%{dynload_dir}/_dbm.%{SOABI_debug}.so
-%{dynload_dir}/_decimal.%{SOABI_debug}.so
-%{dynload_dir}/_elementtree.%{SOABI_debug}.so
-%if %{with_gdbm}
-%{dynload_dir}/_gdbm.%{SOABI_debug}.so
-%endif
-%{dynload_dir}/_hashlib.%{SOABI_debug}.so
-%{dynload_dir}/_heapq.%{SOABI_debug}.so
-%{dynload_dir}/_json.%{SOABI_debug}.so
-%{dynload_dir}/_lsprof.%{SOABI_debug}.so
-%{dynload_dir}/_lzma.%{SOABI_debug}.so
-%{dynload_dir}/_multibytecodec.%{SOABI_debug}.so
-%{dynload_dir}/_multiprocessing.%{SOABI_debug}.so
-%{dynload_dir}/_opcode.%{SOABI_debug}.so
-%{dynload_dir}/_pickle.%{SOABI_debug}.so
-%{dynload_dir}/_posixsubprocess.%{SOABI_debug}.so
-%{dynload_dir}/_random.%{SOABI_debug}.so
-%{dynload_dir}/_socket.%{SOABI_debug}.so
-%{dynload_dir}/_sqlite3.%{SOABI_debug}.so
-%{dynload_dir}/_ssl.%{SOABI_debug}.so
-%{dynload_dir}/_struct.%{SOABI_debug}.so
-%{dynload_dir}/array.%{SOABI_debug}.so
-%{dynload_dir}/audioop.%{SOABI_debug}.so
-%{dynload_dir}/binascii.%{SOABI_debug}.so
-%{dynload_dir}/cmath.%{SOABI_debug}.so
-%{dynload_dir}/_datetime.%{SOABI_debug}.so
-%{dynload_dir}/fcntl.%{SOABI_debug}.so
-%{dynload_dir}/grp.%{SOABI_debug}.so
-%{dynload_dir}/math.%{SOABI_debug}.so
-%{dynload_dir}/mmap.%{SOABI_debug}.so
-%{dynload_dir}/nis.%{SOABI_debug}.so
-%{dynload_dir}/ossaudiodev.%{SOABI_debug}.so
-%{dynload_dir}/parser.%{SOABI_debug}.so
-%{dynload_dir}/pyexpat.%{SOABI_debug}.so
-%{dynload_dir}/readline.%{SOABI_debug}.so
-%{dynload_dir}/resource.%{SOABI_debug}.so
-%{dynload_dir}/select.%{SOABI_debug}.so
-%{dynload_dir}/spwd.%{SOABI_debug}.so
-%{dynload_dir}/syslog.%{SOABI_debug}.so
-%{dynload_dir}/termios.%{SOABI_debug}.so
-#%{dynload_dir}/time.%{SOABI_debug}.so
-%{dynload_dir}/_testmultiphase.%{SOABI_debug}.so
-%{dynload_dir}/unicodedata.%{SOABI_debug}.so
-%{dynload_dir}/zlib.%{SOABI_debug}.so
-
-# No need to split things out the "Makefile" and the config-32/64.h file as we
-# do for the regular build above (bug 531901), since they're all in one package
-# now; they're listed below, under "-devel":
-
-%{_libdir}/%{py_INSTSONAME_debug}
-%if 0%{?with_systemtap}
-%dir %(dirname %{tapsetdir})
-%dir %{tapsetdir}
-%{tapsetdir}/%{libpython_stp_debug}
-%endif
-
-# Analog of the -devel subpackage's files:
-%{pylibdir}/config-%{LDVERSION_debug}-%{_arch}-linux%{_gnu}
-%{_includedir}/python%{LDVERSION_debug}
-%{_bindir}/python%{LDVERSION_debug}-config
-%{_bindir}/python%{LDVERSION_debug}-*-config
-%{_libdir}/libpython%{LDVERSION_debug}.so
-%{_libdir}/libpython%{LDVERSION_debug}.so.1.0
-%{_libdir}/pkgconfig/python-%{LDVERSION_debug}.pc
-
-# Analog of the -tools subpackage's files:
-#  None for now; we could build precanned versions that have the appropriate
-# shebang if needed
-
-# Analog  of the tkinter subpackage's files:
-%{dynload_dir}/_tkinter.%{SOABI_debug}.so
-
-# Analog  of the -test subpackage's files:
-%{dynload_dir}/_ctypes_test.%{SOABI_debug}.so
-%{dynload_dir}/_testbuffer.%{SOABI_debug}.so
-%{dynload_dir}/_testcapi.%{SOABI_debug}.so
-%{dynload_dir}/_testimportmultiple.%{SOABI_debug}.so
-
-%endif # with_debug_build
 
 # We put the debug-gdb.py file inside /usr/lib/debug to avoid noise from
 # ldconfig (rhbz:562980).
