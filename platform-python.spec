@@ -226,8 +226,8 @@ Source7: pyfuntop.stp
 # Written by bkabrda
 Source8: check-pyc-and-pyo-timestamps.py
 
-# A simple macro that enables packages to require system-python(abi) instead of python(abi)
-Source9: macros.systempython
+# A simple macro that enables packages to require platform-python(abi) instead of python(abi)
+Source9: macros.platformpython
 
 # Desktop menu entry for idle3
 Source10: idle3.desktop
@@ -1143,9 +1143,9 @@ echo '[ $? -eq 127 ] && echo "Could not find python%{LDVERSION_debug}-`uname -m`
   chmod +x %{buildroot}%{_bindir}/python%{LDVERSION_debug}-config
 %endif # with_debug_build
 
-# System Python: Copy the executable to libexec
+# Platform Python: Copy the executable to libexec
 mkdir -p %{buildroot}%{_libexecdir}
-cp %{buildroot}%{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/system-python
+cp %{buildroot}%{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/platform-python
 
 
 # ======================================================
@@ -1509,7 +1509,7 @@ fi
 %{_libdir}/pkgconfig/python-%{pybasever}.pc
 %{_libdir}/pkgconfig/python3.pc
 %{_rpmconfigdir}/macros.d/macros.pybytecompile%{pybasever}
-%{_rpmconfigdir}/macros.d/macros.systempython
+%{_rpmconfigdir}/macros.d/macros.platformpython
 
 %files tools
 %defattr(-,root,root,755)
