@@ -755,7 +755,7 @@ BuildPython optimized \
   python \
   python%{pybasever} \
 %ifarch %{ix86} x86_64
-  "--without-ensurepip --enable-optimizations" \
+  "--without-ensurepip" \
 %else
   "--without-ensurepip" \
 %endif
