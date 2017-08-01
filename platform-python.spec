@@ -223,9 +223,6 @@ Source7: pyfuntop.stp
 # Written by bkabrda
 Source8: check-pyc-and-pyo-timestamps.py
 
-# A simple macro that enables packages to require platform-python(abi) instead of python(abi)
-Source9: macros.platformpython
-
 # Desktop menu entry for idle3
 Source10: idle3.desktop
 
@@ -977,7 +974,6 @@ find %{buildroot} \
 # Install macros for rpm:
 mkdir -p %{buildroot}/%{_rpmconfigdir}/macros.d/
 install -m 644 %{SOURCE3} %{buildroot}/%{_rpmconfigdir}/macros.d/
-install -m 644 %{SOURCE9} %{buildroot}/%{_rpmconfigdir}/macros.d/
 
 # Ensure that the curses module was linked against libncursesw.so, rather than
 # libncurses.so (bug 539917)
@@ -1385,7 +1381,6 @@ fi
 %{_libdir}/pkgconfig/python-%{pybasever}.pc
 %{_libdir}/pkgconfig/python3.pc
 %{_rpmconfigdir}/macros.d/macros.pybytecompile-%{name}
-%{_rpmconfigdir}/macros.d/macros.platformpython
 
 %files tools
 %defattr(-,root,root,755)
