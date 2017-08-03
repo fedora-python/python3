@@ -1,0 +1,269 @@
+diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
+index ed44a93..84073f9 100644
+--- a/Lib/distutils/command/install.py
++++ b/Lib/distutils/command/install.py
+@@ -29,9 +29,9 @@ WINDOWS_SCHEME = {
+ 
+ INSTALL_SCHEMES = {
+     'unix_prefix': {
+-        'purelib': '$base/lib/python$py_version_short/site-packages',
+-        'platlib': '$platbase/lib64/python$py_version_short/site-packages',
+-        'headers': '$base/include/python$py_version_short$abiflags/$dist_name',
++        'purelib': '$base/lib/platform-python$py_version_short/site-packages',
++        'platlib': '$platbase/lib64/platform-python$py_version_short/site-packages',
++        'headers': '$base/include/platform-python$py_version_short$abiflags/$dist_name',
+         'scripts': '$base/bin',
+         'data'   : '$base',
+         },
+@@ -59,7 +59,7 @@ if HAS_USER_SITE:
+         'purelib': '$usersite',
+         'platlib': '$usersite',
+         'headers':
+-            '$userbase/include/python$py_version_short$abiflags/$dist_name',
++            '$userbase/include/platform-python$py_version_short$abiflags/$dist_name',
+         'scripts': '$userbase/bin',
+         'data'   : '$userbase',
+         }
+diff --git a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
+index 2013efa..bb265f7 100644
+--- a/Lib/distutils/sysconfig.py
++++ b/Lib/distutils/sysconfig.py
+@@ -134,7 +134,7 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
+         else:
+             lib = "lib"
+         libpython = os.path.join(prefix,
+-                                 lib, "python" + get_python_version())
++                                 lib, "platform-python" + get_python_version())
+         if standard_lib:
+             return libpython
+         else:
+diff --git a/Lib/site.py b/Lib/site.py
+index b5fe571..f4fe1fd 100644
+--- a/Lib/site.py
++++ b/Lib/site.py
+@@ -305,7 +305,7 @@ def getsitepackages(prefixes=None):
+ 
+         if os.sep == '/':
+             sitepackages.append(os.path.join(prefix, "lib64",
+-                                        "python" + sys.version[:3],
++                                        "platform-python" + sys.version[:3],
+                                         "site-packages"))
+             sitepackages.append(os.path.join(prefix, "lib",
+                                         "python%d.%d" % sys.version_info[:2],
+diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
+index 240bb66..c6962f2 100644
+--- a/Lib/sysconfig.py
++++ b/Lib/sysconfig.py
+@@ -20,14 +20,14 @@ __all__ = [
+ 
+ _INSTALL_SCHEMES = {
+     'posix_prefix': {
+-        'stdlib': '{installed_base}/lib64/python{py_version_short}',
+-        'platstdlib': '{platbase}/lib64/python{py_version_short}',
+-        'purelib': '{base}/lib/python{py_version_short}/site-packages',
+-        'platlib': '{platbase}/lib64/python{py_version_short}/site-packages',
++        'stdlib': '{installed_base}/lib64/platform-python{py_version_short}',
++        'platstdlib': '{platbase}/lib64/platform-python{py_version_short}',
++        'purelib': '{base}/lib/platform-python{py_version_short}/site-packages',
++        'platlib': '{platbase}/lib64/platform-python{py_version_short}/site-packages',
+         'include':
+-            '{installed_base}/include/python{py_version_short}{abiflags}',
++            '{installed_base}/include/platform-python{py_version_short}{abiflags}',
+         'platinclude':
+-            '{installed_platbase}/include/python{py_version_short}{abiflags}',
++            '{installed_platbase}/include/platform-python{py_version_short}{abiflags}',
+         'scripts': '{base}/bin',
+         'data': '{base}',
+         },
+@@ -61,11 +61,11 @@ _INSTALL_SCHEMES = {
+         'data': '{userbase}',
+         },
+     'posix_user': {
+-        'stdlib': '{userbase}/lib64/python{py_version_short}',
+-        'platstdlib': '{userbase}/lib64/python{py_version_short}',
+-        'purelib': '{userbase}/lib/python{py_version_short}/site-packages',
+-        'platlib': '{userbase}/lib64/python{py_version_short}/site-packages',
+-        'include': '{userbase}/include/python{py_version_short}',
++        'stdlib': '{userbase}/lib64/platform-python{py_version_short}',
++        'platstdlib': '{userbase}/lib64/platform-python{py_version_short}',
++        'purelib': '{userbase}/lib/platform-python{py_version_short}/site-packages',
++        'platlib': '{userbase}/lib64/platform-python{py_version_short}/site-packages',
++        'include': '{userbase}/include/platform-python{py_version_short}',
+         'scripts': '{userbase}/bin',
+         'data': '{userbase}',
+         },
+diff --git a/Lib/test/test_site.py b/Lib/test/test_site.py
+index 7f1a991..8ca765f 100644
+--- a/Lib/test/test_site.py
++++ b/Lib/test/test_site.py
+@@ -262,7 +262,7 @@ class HelperFunctionsTests(unittest.TestCase):
+             # OS X non-framwework builds, Linux, FreeBSD, etc
+             self.assertEqual(len(dirs), 2)
+             wanted = os.path.join('xoxo', 'lib64',
+-                                  'python%d.%d' % sys.version_info[:2],
++                                  'platform-python%d.%d' % sys.version_info[:2],
+                                   'site-packages')
+             self.assertEqual(dirs[0], wanted)
+         else:
+diff --git a/Makefile.pre.in b/Makefile.pre.in
+index 4f8c042..2207596 100644
+--- a/Makefile.pre.in
++++ b/Makefile.pre.in
+@@ -137,10 +137,10 @@ SCRIPTDIR=	$(prefix)/lib64
+ ABIFLAGS=	@ABIFLAGS@
+ 
+ # Detailed destination directories
+-BINLIBDEST=	$(LIBDIR)/python$(VERSION)
+-LIBDEST=	$(SCRIPTDIR)/python$(VERSION)
+-INCLUDEPY=	$(INCLUDEDIR)/python$(LDVERSION)
+-CONFINCLUDEPY=	$(CONFINCLUDEDIR)/python$(LDVERSION)
++BINLIBDEST=	$(LIBDIR)/platform-python$(VERSION)
++LIBDEST=	$(SCRIPTDIR)/platform-python$(VERSION)
++INCLUDEPY=	$(INCLUDEDIR)/platform-python$(LDVERSION)
++CONFINCLUDEPY=	$(CONFINCLUDEDIR)/platform-python$(LDVERSION)
+ 
+ # Symbols used for using shared libraries
+ SHLIB_SUFFIX=	@SHLIB_SUFFIX@
+@@ -578,7 +578,7 @@ sharedmods: $(BUILDPYTHON) pybuilddir.txt Modules/_math.o
+ 		$(PYTHON_FOR_BUILD) $(srcdir)/setup.py $$quiet build
+ 
+ 
+-libpython$(LDVERSION).so: $(LIBRARY_OBJS)
++libplatformpython$(LDVERSION).so: $(LIBRARY_OBJS)
+ 	if test $(INSTSONAME) != $(LDLIBRARY); then \
+ 		$(BLDSHARED) -Wl,-h$(INSTSONAME) -o $(INSTSONAME) $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
+ 		$(LN) -f $(INSTSONAME) $@; \
+@@ -586,14 +586,14 @@ libpython$(LDVERSION).so: $(LIBRARY_OBJS)
+ 		$(BLDSHARED) -o $@ $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
+ 	fi
+ 
+-libpython3.so:	libpython$(LDVERSION).so
++libplatformpython3.so:	libplatformpython$(LDVERSION).so
+ 	$(BLDSHARED) $(NO_AS_NEEDED) -o $@ -Wl,-h$@ $^
+ 
+ libpython$(LDVERSION).dylib: $(LIBRARY_OBJS)
+ 	 $(CC) -dynamiclib -Wl,-single_module $(PY_LDFLAGS) -undefined dynamic_lookup -Wl,-install_name,$(prefix)/lib/libpython$(LDVERSION).dylib -Wl,-compatibility_version,$(VERSION) -Wl,-current_version,$(VERSION) -o $@ $(LIBRARY_OBJS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
+ 
+ 
+-libpython$(VERSION).sl: $(LIBRARY_OBJS)
++libplatformpython$(VERSION).sl: $(LIBRARY_OBJS)
+ 	$(LDSHARED) -o $@ $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST)
+ 
+ # Copy up the gdb python hooks into a position where they can be automatically
+@@ -1139,13 +1139,13 @@ bininstall: altbininstall
+ 	-if test "$(VERSION)" != "$(LDVERSION)"; then \
+ 		rm -f $(DESTDIR)$(BINDIR)/python$(VERSION)-config; \
+ 		(cd $(DESTDIR)$(BINDIR); $(LN) -s python$(LDVERSION)-config python$(VERSION)-config); \
+-		rm -f $(DESTDIR)$(LIBPC)/python-$(LDVERSION).pc; \
+-		(cd $(DESTDIR)$(LIBPC); $(LN) -s python-$(VERSION).pc python-$(LDVERSION).pc); \
++		rm -f $(DESTDIR)$(LIBPC)/platform-python-$(LDVERSION).pc; \
++		(cd $(DESTDIR)$(LIBPC); $(LN) -s platform-python-$(VERSION).pc platform-python-$(LDVERSION).pc); \
+ 	fi
+ 	-rm -f $(DESTDIR)$(BINDIR)/python3-config
+ 	(cd $(DESTDIR)$(BINDIR); $(LN) -s python$(VERSION)-config python3-config)
+ 	-rm -f $(DESTDIR)$(LIBPC)/python3.pc
+-	(cd $(DESTDIR)$(LIBPC); $(LN) -s python-$(VERSION).pc python3.pc)
++	(cd $(DESTDIR)$(LIBPC); $(LN) -s platform-python-$(VERSION).pc platform-python3.pc)
+ 	-rm -f $(DESTDIR)$(BINDIR)/idle3
+ 	(cd $(DESTDIR)$(BINDIR); $(LN) -s idle$(VERSION) idle3)
+ 	-rm -f $(DESTDIR)$(BINDIR)/pydoc3
+@@ -1386,7 +1386,7 @@ libainstall:	@DEF_MAKE_RULE@ python-config
+ 	$(INSTALL_DATA) Modules/Setup $(DESTDIR)$(LIBPL)/Setup
+ 	$(INSTALL_DATA) Modules/Setup.local $(DESTDIR)$(LIBPL)/Setup.local
+ 	$(INSTALL_DATA) Modules/Setup.config $(DESTDIR)$(LIBPL)/Setup.config
+-	$(INSTALL_DATA) Misc/python.pc $(DESTDIR)$(LIBPC)/python-$(VERSION).pc
++	$(INSTALL_DATA) Misc/python.pc $(DESTDIR)$(LIBPC)/platform-python-$(VERSION).pc
+ 	$(INSTALL_SCRIPT) $(srcdir)/Modules/makesetup $(DESTDIR)$(LIBPL)/makesetup
+ 	$(INSTALL_SCRIPT) $(srcdir)/install-sh $(DESTDIR)$(LIBPL)/install-sh
+ 	$(INSTALL_SCRIPT) python-config.py $(DESTDIR)$(LIBPL)/python-config.py
+diff --git a/Modules/getpath.c b/Modules/getpath.c
+index c4055be..248d654 100644
+--- a/Modules/getpath.c
++++ b/Modules/getpath.c
+@@ -494,7 +494,7 @@ calculate_path(void)
+     _pythonpath = Py_DecodeLocale(PYTHONPATH, NULL);
+     _prefix = Py_DecodeLocale(PREFIX, NULL);
+     _exec_prefix = Py_DecodeLocale(EXEC_PREFIX, NULL);
+-    lib_python = Py_DecodeLocale("lib64/python" VERSION, NULL);
++    lib_python = Py_DecodeLocale("lib64/platform-python" VERSION, NULL);
+ 
+     if (!_pythonpath || !_prefix || !_exec_prefix || !lib_python) {
+         Py_FatalError(
+diff --git a/configure b/configure
+index eea17a4..8dfd827 100755
+--- a/configure
++++ b/configure
+@@ -5741,7 +5741,7 @@ esac
+ $as_echo_n "checking LIBRARY... " >&6; }
+ if test -z "$LIBRARY"
+ then
+-	LIBRARY='libpython$(VERSION)$(ABIFLAGS).a'
++	LIBRARY='libplatformpython$(VERSION)$(ABIFLAGS).a'
+ fi
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBRARY" >&5
+ $as_echo "$LIBRARY" >&6; }
+@@ -5971,13 +5971,13 @@ $as_echo "#define Py_ENABLE_SHARED 1" >>confdefs.h
+ 	  fi
+           ;;
+     Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*)
+-	  LDLIBRARY='libpython$(LDVERSION).so'
+-	  BLDLIBRARY='-L. -lpython$(LDVERSION)'
++	  LDLIBRARY='libplatformpython$(LDVERSION).so'
++	  BLDLIBRARY='-L. -lplatform-python-$(LDVERSION)'
+ 	  RUNSHARED=LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+ 	  INSTSONAME="$LDLIBRARY".$SOVERSION
+ 	  if test "$with_pydebug" != yes
+           then
+-	      PY3LIBRARY=libpython3.so
++	      PY3LIBRARY=libplatformpython3.so
+ 	  fi
+ 	  ;;
+     hp*|HP*)
+@@ -5994,7 +5994,7 @@ $as_echo "#define Py_ENABLE_SHARED 1" >>confdefs.h
+ 	  ;;
+     Darwin*)
+     	LDLIBRARY='libpython$(LDVERSION).dylib'
+-	BLDLIBRARY='-L. -lpython$(LDVERSION)'
++	BLDLIBRARY='-L. -lplatform-python-$(LDVERSION)'
+ 	RUNSHARED=DYLD_LIBRARY_PATH=`pwd`${DYLD_LIBRARY_PATH:+:${DYLD_LIBRARY_PATH}}
+ 	;;
+     AIX*)
+diff --git a/configure.ac b/configure.ac
+index 74b0e57..56d3c33 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -987,7 +987,7 @@ AC_SUBST(LIBRARY)
+ AC_MSG_CHECKING(LIBRARY)
+ if test -z "$LIBRARY"
+ then
+-	LIBRARY='libpython$(VERSION)$(ABIFLAGS).a'
++	LIBRARY='libplatformpython$(VERSION)$(ABIFLAGS).a'
+ fi
+ AC_MSG_RESULT($LIBRARY)
+ 
+@@ -1148,13 +1148,13 @@ if test $enable_shared = "yes"; then
+ 	  fi
+           ;;
+     Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*)
+-	  LDLIBRARY='libpython$(LDVERSION).so'
+-	  BLDLIBRARY='-L. -lpython$(LDVERSION)'
++	  LDLIBRARY='libplatformpython$(LDVERSION).so'
++	  BLDLIBRARY='-L. -lplatform-python-$(LDVERSION)'
+ 	  RUNSHARED=LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+ 	  INSTSONAME="$LDLIBRARY".$SOVERSION
+ 	  if test "$with_pydebug" != yes
+           then
+-	      PY3LIBRARY=libpython3.so
++	      PY3LIBRARY=libplatformpython3.so
+ 	  fi
+ 	  ;;
+     hp*|HP*)
+@@ -1171,7 +1171,7 @@ if test $enable_shared = "yes"; then
+ 	  ;;
+     Darwin*)
+     	LDLIBRARY='libpython$(LDVERSION).dylib'
+-	BLDLIBRARY='-L. -lpython$(LDVERSION)'
++	BLDLIBRARY='-L. -lplatform-python-$(LDVERSION)'
+ 	RUNSHARED=DYLD_LIBRARY_PATH=`pwd`${DYLD_LIBRARY_PATH:+:${DYLD_LIBRARY_PATH}}
+ 	;;
+     AIX*)
