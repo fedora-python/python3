@@ -82,7 +82,7 @@
 # (if these get out of sync, the payload of the libs subpackage will fail
 # and halt the build)
 %global py_SOVERSION 1.0
-%global py_INSTSONAME_optimized libplatformpython%{LDVERSION_optimized}.so.%{py_SOVERSION}
+%global py_INSTSONAME_optimized libplatform-python%{LDVERSION_optimized}.so.%{py_SOVERSION}
 
 %global with_gdb_hooks 1
 
