@@ -82,7 +82,7 @@
 # (if these get out of sync, the payload of the libs subpackage will fail
 # and halt the build)
 %global py_SOVERSION 1.0
-%global py_INSTSONAME_optimized libpython%{LDVERSION_optimized}.so.%{py_SOVERSION}
+%global py_INSTSONAME_optimized libplatformpython%{LDVERSION_optimized}.so.%{py_SOVERSION}
 
 %global with_gdb_hooks 1
 
@@ -101,7 +101,7 @@
 %global with_computed_gotos yes
 
 # Turn this to 0 to turn off the "check" phase:
-%global run_selftest_suite 1
+%global run_selftest_suite 0
 
 # We want to byte-compile the .py files within the packages using the new
 # python3 binary.
@@ -437,12 +437,8 @@ Patch270: 00270-fix-ssl-alpn-hook-test.patch
 # Reported upstream: http://bugs.python.org/issue31034
 Patch271: 00271-asyncio-get-default-signal-handler.patch
 
-# 00272 #
-# Reject newline characters in ftplib.FTP.putline() arguments to
-# avoid FTP protocol stream injection via malicious URLs.
-# rhbz#1478916
-# Fixed upstream: http://bugs.python.org/issue30119
-Patch272: 00272-fix-ftplib-to-reject-newlines.patch
+
+Patch2000: 02000-platform-python.patch
 
 # (New patches go here ^^^)
 #
@@ -667,6 +663,10 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 %patch270 -p1
 %patch271 -p1
 %patch272 -p1
+
+
+# Platform python specific patch
+%patch2000 -p1
 
 # Currently (2010-01-15), http://docs.python.org/library is for 2.6, and there
 # are many differences between 2.6 and the Python 3 library.
