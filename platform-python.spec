@@ -201,6 +201,8 @@ Source3: macros.pybytecompile-%{name}
 # Written by bkabrda
 Source8: check-pyc-and-pyo-timestamps.py
 
+Patch0: platform-python.patch
+
 # Fixup distutils/unixccompiler.py to remove standard library path from rpath:
 # Was Patch0 in ivazquez' python3000 specfile:
 Patch1:         Python-3.1.1-rpath.patch
@@ -402,8 +404,6 @@ Patch270: 00270-fix-ssl-alpn-hook-test.patch
 # Reported upstream: http://bugs.python.org/issue31034
 Patch271: 00271-asyncio-get-default-signal-handler.patch
 
-Patch2000: 02000-platform-python.patch
-
 # (New patches go here ^^^)
 #
 # When adding new patches to "python" and "python3" in Fedora, EL, etc.,
@@ -579,6 +579,9 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 #
 # Apply patches:
 #
+
+%patch0 -p1
+
 %patch1 -p1
 
 %if "%{_lib}" == "lib64"
@@ -616,10 +619,6 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 %patch270 -p1
 %patch271 -p1
 %patch272 -p1
-
-
-# Platform python specific patch
-%patch2000 -p1
 
 # Currently (2010-01-15), http://docs.python.org/library is for 2.6, and there
 # are many differences between 2.6 and the Python 3 library.

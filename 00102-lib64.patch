@@ -5,10 +5,10 @@ index 9474e9c..c0ce4c6 100644
 @@ -30,14 +30,14 @@ WINDOWS_SCHEME = {
  INSTALL_SCHEMES = {
      'unix_prefix': {
-         'purelib': '$base/lib/python$py_version_short/site-packages',
--        'platlib': '$platbase/lib/python$py_version_short/site-packages',
-+        'platlib': '$platbase/lib64/python$py_version_short/site-packages',
-         'headers': '$base/include/python$py_version_short$abiflags/$dist_name',
+         'purelib': '$base/lib/platform-python$py_version_short/site-packages',
+-        'platlib': '$platbase/lib/platform-python$py_version_short/site-packages',
++        'platlib': '$platbase/lib64/platform-python$py_version_short/site-packages',
+         'headers': '$base/include/platform-python$py_version_short$abiflags/$dist_name',
          'scripts': '$base/bin',
          'data'   : '$base',
          },
@@ -32,8 +32,8 @@ index 026cca7..6d3e077 100644
 +        else:
 +            lib = "lib"
          libpython = os.path.join(prefix,
--                                 "lib", "python" + get_python_version())
-+                                 lib, "python" + get_python_version())
+-                                 "lib", "platform-python" + get_python_version())
++                                 lib, "platform-python" + get_python_version())
          if standard_lib:
              return libpython
          else:
@@ -46,10 +46,10 @@ index a84e3bb..ba0d3ea 100644
  
          if os.sep == '/':
 +            sitepackages.append(os.path.join(prefix, "lib64",
-+                                        "python" + sys.version[:3],
++                                        "platform-python" + sys.version[:3],
 +                                        "site-packages"))
              sitepackages.append(os.path.join(prefix, "lib",
-                                         "python%d.%d" % sys.version_info[:2],
+                                         "platform-python%d.%d" % sys.version_info[:2],
                                          "site-packages"))
          else:
              sitepackages.append(prefix)
@@ -65,28 +65,28 @@ index b9bbfe5..2a5f29c 100644
  
  _INSTALL_SCHEMES = {
      'posix_prefix': {
--        'stdlib': '{installed_base}/lib/python{py_version_short}',
--        'platstdlib': '{platbase}/lib/python{py_version_short}',
-+        'stdlib': '{installed_base}/lib64/python{py_version_short}',
-+        'platstdlib': '{platbase}/lib64/python{py_version_short}',
-         'purelib': '{base}/lib/python{py_version_short}/site-packages',
--        'platlib': '{platbase}/lib/python{py_version_short}/site-packages',
-+        'platlib': '{platbase}/lib64/python{py_version_short}/site-packages',
+-        'stdlib': '{installed_base}/lib/platform-python{py_version_short}',
+-        'platstdlib': '{platbase}/lib/platform-python{py_version_short}',
++        'stdlib': '{installed_base}/lib64/platform-python{py_version_short}',
++        'platstdlib': '{platbase}/lib64/platform-python{py_version_short}',
+         'purelib': '{base}/lib/platform-python{py_version_short}/site-packages',
+-        'platlib': '{platbase}/lib/platform-python{py_version_short}/site-packages',
++        'platlib': '{platbase}/lib64/platform-python{py_version_short}/site-packages',
          'include':
-             '{installed_base}/include/python{py_version_short}{abiflags}',
+             '{installed_base}/include/platform-python{py_version_short}{abiflags}',
          'platinclude':
 @@ -61,10 +61,10 @@ _INSTALL_SCHEMES = {
          'data': '{userbase}',
          },
      'posix_user': {
--        'stdlib': '{userbase}/lib/python{py_version_short}',
--        'platstdlib': '{userbase}/lib/python{py_version_short}',
-+        'stdlib': '{userbase}/lib64/python{py_version_short}',
-+        'platstdlib': '{userbase}/lib64/python{py_version_short}',
-         'purelib': '{userbase}/lib/python{py_version_short}/site-packages',
--        'platlib': '{userbase}/lib/python{py_version_short}/site-packages',
-+        'platlib': '{userbase}/lib64/python{py_version_short}/site-packages',
-         'include': '{userbase}/include/python{py_version_short}',
+-        'stdlib': '{userbase}/lib/platform-python{py_version_short}',
+-        'platstdlib': '{userbase}/lib/platform-python{py_version_short}',
++        'stdlib': '{userbase}/lib64/platform-python{py_version_short}',
++        'platstdlib': '{userbase}/lib64/platform-python{py_version_short}',
+         'purelib': '{userbase}/lib/platform-python{py_version_short}/site-packages',
+-        'platlib': '{userbase}/lib/platform-python{py_version_short}/site-packages',
++        'platlib': '{userbase}/lib64/platform-python{py_version_short}/site-packages',
+         'include': '{userbase}/include/platform-python{py_version_short}',
          'scripts': '{userbase}/bin',
          'data': '{userbase}',
 diff --git a/Lib/test/test_site.py b/Lib/test/test_site.py
@@ -125,8 +125,8 @@ index 65b47a3..eaa756c 100644
      _pythonpath = Py_DecodeLocale(PYTHONPATH, NULL);
      _prefix = Py_DecodeLocale(PREFIX, NULL);
      _exec_prefix = Py_DecodeLocale(EXEC_PREFIX, NULL);
--    lib_python = Py_DecodeLocale("lib/python" VERSION, NULL);
-+    lib_python = Py_DecodeLocale("lib64/python" VERSION, NULL);
+-    lib_python = Py_DecodeLocale("lib/platform-python" VERSION, NULL);
++    lib_python = Py_DecodeLocale("lib64/platform-python" VERSION, NULL);
  
      if (!_pythonpath || !_prefix || !_exec_prefix || !lib_python) {
          Py_FatalError(

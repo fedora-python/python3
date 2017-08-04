@@ -20,10 +20,10 @@ index ed44a93..84073f9 100644
  INSTALL_SCHEMES = {
      'unix_prefix': {
 -        'purelib': '$base/lib/python$py_version_short/site-packages',
--        'platlib': '$platbase/lib64/python$py_version_short/site-packages',
+-        'platlib': '$platbase/lib/python$py_version_short/site-packages',
 -        'headers': '$base/include/python$py_version_short$abiflags/$dist_name',
 +        'purelib': '$base/lib/platform-python$py_version_short/site-packages',
-+        'platlib': '$platbase/lib64/platform-python$py_version_short/site-packages',
++        'platlib': '$platbase/lib/platform-python$py_version_short/site-packages',
 +        'headers': '$base/include/platform-python$py_version_short$abiflags/$dist_name',
          'scripts': '$base/bin',
          'data'   : '$base',
@@ -41,12 +41,12 @@ diff --git a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
 index 2013efa..bb265f7 100644
 --- a/Lib/distutils/sysconfig.py
 +++ b/Lib/distutils/sysconfig.py
-@@ -134,7 +134,7 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
-         else:
-             lib = "lib"
+@@ -130,7 +130,7 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
+ 
+     if os.name == "posix":
          libpython = os.path.join(prefix,
--                                 lib, "python" + get_python_version())
-+                                 lib, "platform-python" + get_python_version())
+-                                 "lib", "python" + get_python_version())
++                                 "lib", "platform-python" + get_python_version())
          if standard_lib:
              return libpython
          else:
@@ -54,13 +54,9 @@ diff --git a/Lib/site.py b/Lib/site.py
 index b5fe571..d3f9fd6 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
-@@ -305,10 +305,10 @@ def getsitepackages(prefixes=None):
+@@ -305,7 +305,7 @@ def getsitepackages(prefixes=None):
  
          if os.sep == '/':
-             sitepackages.append(os.path.join(prefix, "lib64",
--                                        "python" + sys.version[:3],
-+                                        "platform-python" + sys.version[:3],
-                                         "site-packages"))
              sitepackages.append(os.path.join(prefix, "lib",
 -                                        "python%d.%d" % sys.version_info[:2],
 +                                        "platform-python%d.%d" % sys.version_info[:2],
@@ -75,14 +71,14 @@ index 240bb66..c6962f2 100644
  
  _INSTALL_SCHEMES = {
      'posix_prefix': {
--        'stdlib': '{installed_base}/lib64/python{py_version_short}',
--        'platstdlib': '{platbase}/lib64/python{py_version_short}',
+-        'stdlib': '{installed_base}/lib/python{py_version_short}',
+-        'platstdlib': '{platbase}/lib/python{py_version_short}',
 -        'purelib': '{base}/lib/python{py_version_short}/site-packages',
--        'platlib': '{platbase}/lib64/python{py_version_short}/site-packages',
-+        'stdlib': '{installed_base}/lib64/platform-python{py_version_short}',
-+        'platstdlib': '{platbase}/lib64/platform-python{py_version_short}',
+-        'platlib': '{platbase}/lib/python{py_version_short}/site-packages',
++        'stdlib': '{installed_base}/lib/platform-python{py_version_short}',
++        'platstdlib': '{platbase}/lib/platform-python{py_version_short}',
 +        'purelib': '{base}/lib/platform-python{py_version_short}/site-packages',
-+        'platlib': '{platbase}/lib64/platform-python{py_version_short}/site-packages',
++        'platlib': '{platbase}/lib/platform-python{py_version_short}/site-packages',
          'include':
 -            '{installed_base}/include/python{py_version_short}{abiflags}',
 +            '{installed_base}/include/platform-python{py_version_short}{abiflags}',
@@ -96,15 +92,15 @@ index 240bb66..c6962f2 100644
          'data': '{userbase}',
          },
      'posix_user': {
--        'stdlib': '{userbase}/lib64/python{py_version_short}',
--        'platstdlib': '{userbase}/lib64/python{py_version_short}',
+-        'stdlib': '{userbase}/lib/python{py_version_short}',
+-        'platstdlib': '{userbase}/lib/python{py_version_short}',
 -        'purelib': '{userbase}/lib/python{py_version_short}/site-packages',
--        'platlib': '{userbase}/lib64/python{py_version_short}/site-packages',
+-        'platlib': '{userbase}/lib/python{py_version_short}/site-packages',
 -        'include': '{userbase}/include/python{py_version_short}',
-+        'stdlib': '{userbase}/lib64/platform-python{py_version_short}',
-+        'platstdlib': '{userbase}/lib64/platform-python{py_version_short}',
++        'stdlib': '{userbase}/lib/platform-python{py_version_short}',
++        'platstdlib': '{userbase}/lib/platform-python{py_version_short}',
 +        'purelib': '{userbase}/lib/platform-python{py_version_short}/site-packages',
-+        'platlib': '{userbase}/lib64/platform-python{py_version_short}/site-packages',
++        'platlib': '{userbase}/lib/platform-python{py_version_short}/site-packages',
 +        'include': '{userbase}/include/platform-python{py_version_short}',
          'scripts': '{userbase}/bin',
          'data': '{userbase}',
@@ -128,16 +124,16 @@ index 4f8c042..639f220 100644
  
  # Symbols used for using shared libraries
  SHLIB_SUFFIX=	@SHLIB_SUFFIX@
-@@ -578,7 +578,7 @@ sharedmods: $(BUILDPYTHON) pybuilddir.txt Modules/_math.o
- 		$(PYTHON_FOR_BUILD) $(srcdir)/setup.py $$quiet build
- 
+@@ -590,7 +590,7 @@ sharedmods: $(BUILDPYTHON) pybuilddir.txt Modules/_math.o
+ 	$(AR) $(ARFLAGS) $@ $(MODOBJS)
+ 	$(RANLIB) $@
  
 -libpython$(LDVERSION).so: $(LIBRARY_OBJS)
 +libplatform-python$(LDVERSION).so: $(LIBRARY_OBJS)
  	if test $(INSTSONAME) != $(LDLIBRARY); then \
  		$(BLDSHARED) -Wl,-h$(INSTSONAME) -o $(INSTSONAME) $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
  		$(LN) -f $(INSTSONAME) $@; \
-@@ -586,14 +586,14 @@ libpython$(LDVERSION).so: $(LIBRARY_OBJS)
+@@ -598,14 +598,14 @@ libpython$(LDVERSION).so: $(LIBRARY_OBJS)
  		$(BLDSHARED) -o $@ $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
  	fi
  
@@ -156,7 +152,7 @@ index 4f8c042..639f220 100644
  	$(LDSHARED) -o $@ $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST)
  
  # Copy up the gdb python hooks into a position where they can be automatically
-@@ -631,7 +631,7 @@ $(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK): \
+@@ -643,7 +643,7 @@ $(PYTHONFRAMEWORKDIR)/Versions/$(VERSION)/$(PYTHONFRAMEWORK): \
  
  # This rule builds the Cygwin Python DLL and import library if configured
  # for a shared core library; otherwise, this rule is a noop.
@@ -165,7 +161,7 @@ index 4f8c042..639f220 100644
  	if test -n "$(DLLLIBRARY)"; then \
  		$(LDSHARED) -Wl,--out-implib=$@ -o $(DLLLIBRARY) $^ \
  			$(LIBS) $(MODLIBS) $(SYSLIBS) $(LDLAST); \
-@@ -1461,12 +1461,12 @@ frameworkinstallstructure:	$(LDLIBRARY)
+@@ -1485,12 +1485,12 @@ frameworkinstallstructure:	$(LDLIBRARY)
  # Install a number of symlinks to keep software that expects a normal unix
  # install (which includes python-config) happy.
  frameworkinstallmaclib:
@@ -241,8 +237,8 @@ index c4055be..248d654 100644
      _pythonpath = Py_DecodeLocale(PYTHONPATH, NULL);
      _prefix = Py_DecodeLocale(PREFIX, NULL);
      _exec_prefix = Py_DecodeLocale(EXEC_PREFIX, NULL);
--    lib_python = Py_DecodeLocale("lib64/python" VERSION, NULL);
-+    lib_python = Py_DecodeLocale("lib64/platform-python" VERSION, NULL);
+-    lib_python = Py_DecodeLocale("lib/python" VERSION, NULL);
++    lib_python = Py_DecodeLocale("lib/platform-python" VERSION, NULL);
  
      if (!_pythonpath || !_prefix || !_exec_prefix || !lib_python) {
          Py_FatalError(
@@ -263,7 +259,7 @@ diff --git a/configure b/configure
 index eea17a4..335722f 100755
 --- a/configure
 +++ b/configure
-@@ -5741,7 +5741,7 @@ esac
+@@ -5733,7 +5733,7 @@ esac
  $as_echo_n "checking LIBRARY... " >&6; }
  if test -z "$LIBRARY"
  then
@@ -272,7 +268,7 @@ index eea17a4..335722f 100755
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBRARY" >&5
  $as_echo "$LIBRARY" >&6; }
-@@ -5957,48 +5957,48 @@ $as_echo "#define Py_ENABLE_SHARED 1" >>confdefs.h
+@@ -5949,48 +5949,48 @@ $as_echo "#define Py_ENABLE_SHARED 1" >>confdefs.h
  
    case $ac_sys_system in
      CYGWIN*)
@@ -335,7 +331,7 @@ index eea17a4..335722f 100755
  	RUNSHARED=LIBPATH=`pwd`${LIBPATH:+:${LIBPATH}}
  	;;
  
-@@ -6008,7 +6008,7 @@ else # shared is disabled
+@@ -6000,7 +6000,7 @@ else # shared is disabled
    case $ac_sys_system in
      CYGWIN*)
            BLDLIBRARY='$(LIBRARY)'
@@ -344,7 +340,7 @@ index eea17a4..335722f 100755
            ;;
    esac
  fi
-@@ -9448,7 +9448,7 @@ $as_echo "$CFLAGSFORSHARED" >&6; }
+@@ -9440,7 +9440,7 @@ $as_echo "$CFLAGSFORSHARED" >&6; }
  # For platforms on which shared libraries are not allowed to have unresolved
  # symbols, this must be set to $(LIBS) (expanded by make). We do this even
  # if it is not required, since it creates a dependency of the shared library
