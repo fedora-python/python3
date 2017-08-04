@@ -84,7 +84,7 @@
 %global py_SOVERSION 1.0
 %global py_INSTSONAME_optimized libplatform-python%{LDVERSION_optimized}.so.%{py_SOVERSION}
 
-%global with_gdb_hooks 1
+%global with_gdb_hooks 0
 
 # some arches don't have valgrind so we need to disable its support on them
 %ifnarch s390 %{mips} riscv64
@@ -1030,14 +1030,14 @@ CheckPython optimized
 %defattr(-, root, root)
 %license LICENSE
 %doc README.rst
-%{_bindir}/pydoc*
-%{_bindir}/python3
+%exclude %{_bindir}/pydoc*
+%exclude %{_bindir}/python3
 %{_libexecdir}/platform-python
-%{_bindir}/python%{pybasever}
-%{_bindir}/python%{pybasever}m
-%{_bindir}/pyvenv
-%{_bindir}/pyvenv-%{pybasever}
-%{_mandir}/*/*
+%exclude %{_bindir}/python%{pybasever}
+%exclude %{_bindir}/python%{pybasever}m
+%exclude %{_bindir}/pyvenv
+%exclude %{_bindir}/pyvenv-%{pybasever}
+%exclude %{_mandir}/*/*
 
 %files libs
 %defattr(-,root,root,-)
@@ -1271,21 +1271,21 @@ CheckPython optimized
 %{_includedir}/platform-python%{LDVERSION_optimized}/*.h
 %exclude %{_includedir}/platform-python%{LDVERSION_optimized}/%{_pyconfig_h}
 %doc Misc/README.valgrind Misc/valgrind-python.supp Misc/gdbinit
-%{_bindir}/python3-config
-%{_bindir}/python%{pybasever}-config
-%{_bindir}/python%{LDVERSION_optimized}-config
-%{_bindir}/python%{LDVERSION_optimized}-*-config
+%exclude %{_bindir}/python3-config
+%exclude %{_bindir}/python%{pybasever}-config
+%exclude %{_bindir}/python%{LDVERSION_optimized}-config
+%exclude %{_bindir}/python%{LDVERSION_optimized}-*-config
 %{_libdir}/libplatform-python%{LDVERSION_optimized}.so
-%{_libdir}/pkgconfig/python-%{LDVERSION_optimized}.pc
-%{_libdir}/pkgconfig/python-%{pybasever}.pc
-%{_libdir}/pkgconfig/python3.pc
+%exclude %{_libdir}/pkgconfig/python-%{LDVERSION_optimized}.pc
+%exclude %{_libdir}/pkgconfig/python-%{pybasever}.pc
+%exclude %{_libdir}/pkgconfig/python3.pc
 %{_rpmconfigdir}/macros.d/macros.pybytecompile-%{name}
 
 %files tools
 %defattr(-,root,root,755)
-%{_bindir}/python3-2to3
-%{_bindir}/2to3-%{pybasever}
-%{_bindir}/idle*
+%exclude %{_bindir}/python3-2to3
+%exclude %{_bindir}/2to3-%{pybasever}
+%exclude %{_bindir}/idle*
 %{pylibdir}/Tools
 %doc %{pylibdir}/Doc
 
