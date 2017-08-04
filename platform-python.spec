@@ -82,7 +82,7 @@
 # (if these get out of sync, the payload of the libs subpackage will fail
 # and halt the build)
 %global py_SOVERSION 1.0
-%global py_INSTSONAME_optimized libplatform-python%{LDVERSION_optimized}.so.%{py_SOVERSION}
+%global py_INSTSONAME_optimized libplatformpython%{LDVERSION_optimized}.so.%{py_SOVERSION}
 
 %global with_gdb_hooks 1
 
@@ -1211,7 +1211,7 @@ fi
 %{_includedir}/platform-python%{LDVERSION_optimized}/%{_pyconfig_h}
 
 %{_libdir}/%{py_INSTSONAME_optimized}
-%{_libdir}/libpython3.so
+%{_libdir}/libplatformpython3.so
 
 %files libs-devel
 %defattr(-,root,root,-)
@@ -1289,7 +1289,7 @@ fi
 %{_bindir}/python%{pybasever}-config
 %{_bindir}/python%{LDVERSION_optimized}-config
 %{_bindir}/python%{LDVERSION_optimized}-*-config
-%{_libdir}/libpython%{LDVERSION_optimized}.so
+%{_libdir}/libplatformpython%{LDVERSION_optimized}.so
 %{_libdir}/pkgconfig/python-%{LDVERSION_optimized}.pc
 %{_libdir}/pkgconfig/python-%{pybasever}.pc
 %{_libdir}/pkgconfig/python3.pc
