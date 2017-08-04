@@ -86,8 +86,6 @@
 
 %global with_gdb_hooks 1
 
-%global with_systemtap 0
-
 # some arches don't have valgrind so we need to disable its support on them
 %ifnarch s390 %{mips} riscv64
 %global with_valgrind 1
@@ -167,14 +165,7 @@ BuildRequires: openssl-devel
 BuildRequires: pkgconfig
 BuildRequires: readline-devel
 BuildRequires: sqlite-devel
-BuildRequires: desktop-file-utils
-BuildRequires: libappstream-glib
 
-BuildRequires: systemtap-sdt-devel
-BuildRequires: systemtap-devel
-# (this introduces a dependency on "python", in that systemtap-sdt-devel's
-# /usr/bin/dtrace is a python 2 script)
-%global tapsetdir      /usr/share/systemtap/tapset
 
 BuildRequires: tar
 BuildRequires: tcl-devel
@@ -205,19 +196,6 @@ Source: https://www.python.org/ftp/python/%{version}/Python-%{version}.tar.xz
 # with different Python runtimes as necessary:
 Source3: macros.pybytecompile-%{name}
 
-# Systemtap tapset to make it easier to use the systemtap static probes
-# (actually a template; LIBRARY_PATH will get fixed up during install)
-# Written by dmalcolm; not yet sent upstream
-Source5: libpython.stp
-
-# Example systemtap script using the tapset
-# Written by wcohen, mjw, dmalcolm; not yet sent upstream
-Source6: systemtap-example.stp
-
-# Another example systemtap script that uses the tapset
-# Written by dmalcolm; not yet sent upstream
-Source7: pyfuntop.stp
-
 # A simple script to check timestamps of bytecode files
 # Run in check section with Python that is currently being built
 # Written by bkabrda
@@ -226,13 +204,6 @@ Source8: check-pyc-and-pyo-timestamps.py
 # Fixup distutils/unixccompiler.py to remove standard library path from rpath:
 # Was Patch0 in ivazquez' python3000 specfile:
 Patch1:         Python-3.1.1-rpath.patch
-
-# 00055 #
-# Systemtap support: add statically-defined probe points
-# Patch sent upstream as http://bugs.python.org/issue14776
-# with some subsequent reworking to cope with LANG=C in an rpmbuild
-# (where sys.getfilesystemencoding() == 'ascii')
-Patch55: 00055-systemtap.patch
 
 Patch102: 00102-lib64.patch
 
@@ -581,12 +552,6 @@ python code that uses more than just unittest and/or test_support.py.
 %prep
 %setup -q -n Python-%{version}%{?prerel}
 
-%if 0%{?with_systemtap}
-# Provide an example of usage of the tapset:
-cp -a %{SOURCE6} .
-cp -a %{SOURCE7} .
-%endif # with_systemtap
-
 # Ensure that we're using the system copy of various libraries, rather than
 # copies shipped by upstream in the tarball:
 #   Remove embedded copy of expat:
@@ -617,10 +582,6 @@ sed -r -i s/'_PIP_VERSION = "[0-9.]+"'/'_PIP_VERSION = "%{pip_version}"'/ Lib/en
 # Apply patches:
 #
 %patch1 -p1
-
-%if 0%{?with_systemtap}
-%patch55 -p1 -b .systemtap
-%endif
 
 %if "%{_lib}" == "lib64"
 %patch102 -p1
@@ -717,11 +678,6 @@ BuildPython() {
   --with-system-expat \
   --with-system-ffi \
   --enable-loadable-sqlite-extensions \
-  --with-dtrace \
-  --with-lto \
-%if 0%{?with_systemtap}
-  --with-systemtap \
-%endif
 %if 0%{?with_valgrind}
   --with-valgrind \
 %endif
@@ -979,25 +935,6 @@ for Module in %{buildroot}/%{dynload_dir}/*.so ; do
         ;;
     esac
 done
-
-# Systemtap hooks:
-#
-%if 0%{?with_systemtap}
-# Install a tapset for this libpython into tapsetdir, fixing up the path to the
-# library:
-mkdir -p %{buildroot}%{tapsetdir}
-%ifarch %{power64} s390x x86_64 ia64 alpha sparc64 aarch64 %{mips64}
-%global libpython_stp_optimized libpython%{pybasever}-64.stp
-%else
-%global libpython_stp_optimized libpython%{pybasever}-32.stp
-%endif
-
-sed \
-   -e "s|LIBRARY_PATH|%{_libdir}/%{py_INSTSONAME_optimized}|" \
-   %{_sourcedir}/libpython.stp \
-   > %{buildroot}%{tapsetdir}/%{libpython_stp_optimized}
-
-%endif # with_systemtap
 
 # Rename the -devel script that differs on different arches to arch specific name
 mv %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-{,`uname -m`-}config
@@ -1276,12 +1213,6 @@ fi
 
 %{_libdir}/%{py_INSTSONAME_optimized}
 %{_libdir}/libpython3.so
-%if 0%{?with_systemtap}
-%dir %(dirname %{tapsetdir})
-%dir %{tapsetdir}
-%{tapsetdir}/%{libpython_stp_optimized}
-%doc systemtap-example.stp pyfuntop.stp
-%endif
 
 %files libs-devel
 %defattr(-,root,root,-)
