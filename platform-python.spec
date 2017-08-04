@@ -41,7 +41,7 @@
 # pybasever without the dot:
 %global pyshortver 36
 
-%global pylibdir %{_libdir}/%{name}
+%global pylibdir %{_libdir}/%{name}%{pybasever}
 %global dynload_dir %{pylibdir}/lib-dynload
 
 # SOABI is defined in the upstream configure.in from Python-3.2a2 onwards,
