@@ -223,12 +223,6 @@ Source7: pyfuntop.stp
 # Written by bkabrda
 Source8: check-pyc-and-pyo-timestamps.py
 
-# Desktop menu entry for idle3
-Source10: idle3.desktop
-
-# AppData file for idle3
-Source11: idle3.appdata.xml
-
 # Fixup distutils/unixccompiler.py to remove standard library path from rpath:
 # Was Patch0 in ivazquez' python3000 specfile:
 Patch1:         Python-3.1.1-rpath.patch
@@ -831,17 +825,6 @@ install -d -m 0755 ${RPM_BUILD_ROOT}%{pylibdir}/site-packages/__pycache__
 
 mv ${RPM_BUILD_ROOT}%{_bindir}/2to3 ${RPM_BUILD_ROOT}%{_bindir}/python3-2to3
 
-# add idle3 to menu
-install -D -m 0644 Lib/idlelib/Icons/idle_16.png ${RPM_BUILD_ROOT}%{_datadir}/icons/hicolor/16x16/apps/idle3.png
-install -D -m 0644 Lib/idlelib/Icons/idle_32.png ${RPM_BUILD_ROOT}%{_datadir}/icons/hicolor/32x32/apps/idle3.png
-install -D -m 0644 Lib/idlelib/Icons/idle_48.png ${RPM_BUILD_ROOT}%{_datadir}/icons/hicolor/48x48/apps/idle3.png
-desktop-file-install --dir=${RPM_BUILD_ROOT}%{_datadir}/applications %{SOURCE10}
-
-# Install and validate appdata file
-mkdir -p ${RPM_BUILD_ROOT}%{_datadir}/appdata
-cp -a %{SOURCE11} ${RPM_BUILD_ROOT}%{_datadir}/appdata
-appstream-util validate-relax --nonet ${RPM_BUILD_ROOT}%{_datadir}/appdata/idle3.appdata.xml
-
 # Development tools
 install -m755 -d ${RPM_BUILD_ROOT}%{pylibdir}/Tools
 install Tools/README ${RPM_BUILD_ROOT}%{pylibdir}/Tools/
@@ -1389,9 +1372,6 @@ fi
 %{_bindir}/idle*
 %{pylibdir}/Tools
 %doc %{pylibdir}/Doc
-%{_datadir}/appdata/idle3.appdata.xml
-%{_datadir}/applications/idle3.desktop
-%{_datadir}/icons/hicolor/*/apps/idle3.*
 
 %files tkinter
 %defattr(-,root,root,755)
