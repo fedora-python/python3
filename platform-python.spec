@@ -799,7 +799,7 @@ cp -ar Tools/demo %{buildroot}%{pylibdir}/Tools/
 rm -f %{buildroot}%{pylibdir}/email/test/data/audiotest.au %{buildroot}%{pylibdir}/test/audiotest.au
 
 %if "%{_lib}" == "lib64"
-install -d -m 0755 %{buildroot}/%{_prefix}/lib/%{name}/site-packages/__pycache__
+install -d -m 0755 %{buildroot}/%{_prefix}/lib/%{name}%{pybasever}/site-packages/__pycache__
 %endif
 
 # Make python3-devel multilib-ready (bug #192747, #139911)
