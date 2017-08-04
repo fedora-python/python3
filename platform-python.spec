@@ -34,7 +34,7 @@
 # rebuild after a python abi change:
 #   python-sphinx, pytest, python-requests, cloud-init, dnf, anaconda, abrt
 
-%global with_rewheel 1
+%global with_rewheel 0
 
 %global pybasever 3.6
 
