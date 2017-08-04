@@ -1196,9 +1196,9 @@ fi
 %{pylibdir}/xml
 
 %if "%{_lib}" == "lib64"
-%attr(0755,root,root) %dir %{_prefix}/lib/%{name}
-%attr(0755,root,root) %dir %{_prefix}/lib/%{name}/site-packages
-%attr(0755,root,root) %dir %{_prefix}/lib/%{name}/site-packages/__pycache__/
+%attr(0755,root,root) %dir %{_prefix}/lib/%{name}%{pybasever}
+%attr(0755,root,root) %dir %{_prefix}/lib/%{name}%{pybasever}/site-packages
+%attr(0755,root,root) %dir %{_prefix}/lib/%{name}%{pybasever}/site-packages/__pycache__/
 %endif
 
 # "Makefile" and the config-32/64.h file are needed by
