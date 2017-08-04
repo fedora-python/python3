@@ -82,7 +82,7 @@
 # (if these get out of sync, the payload of the libs subpackage will fail
 # and halt the build)
 %global py_SOVERSION 1.0
-%global py_INSTSONAME_optimized libplatformpython%{LDVERSION_optimized}.so.%{py_SOVERSION}
+%global py_INSTSONAME_optimized libplatform-python%{LDVERSION_optimized}.so.%{py_SOVERSION}
 
 %global with_gdb_hooks 1
 
@@ -401,7 +401,6 @@ Patch270: 00270-fix-ssl-alpn-hook-test.patch
 # as this can make it hang on koji, since it ignores SIGHUP.
 # Reported upstream: http://bugs.python.org/issue31034
 Patch271: 00271-asyncio-get-default-signal-handler.patch
-
 
 Patch2000: 02000-platform-python.patch
 
@@ -1211,7 +1210,7 @@ fi
 %{_includedir}/platform-python%{LDVERSION_optimized}/%{_pyconfig_h}
 
 %{_libdir}/%{py_INSTSONAME_optimized}
-%{_libdir}/libplatformpython3.so
+%{_libdir}/libplatform-python3.so
 
 %files libs-devel
 %defattr(-,root,root,-)
@@ -1289,7 +1288,7 @@ fi
 %{_bindir}/python%{pybasever}-config
 %{_bindir}/python%{LDVERSION_optimized}-config
 %{_bindir}/python%{LDVERSION_optimized}-*-config
-%{_libdir}/libplatformpython%{LDVERSION_optimized}.so
+%{_libdir}/libplatform-python%{LDVERSION_optimized}.so
 %{_libdir}/pkgconfig/python-%{LDVERSION_optimized}.pc
 %{_libdir}/pkgconfig/python-%{pybasever}.pc
 %{_libdir}/pkgconfig/python3.pc

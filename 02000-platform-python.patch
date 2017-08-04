@@ -7,7 +7,7 @@ index 74de782..3752cb4 100644
              from distutils import sysconfig
              if sysconfig.get_config_var('Py_ENABLE_SHARED'):
 -                pythonlib = 'python{}.{}{}'.format(
-+                pythonlib = 'platformpython{}.{}{}'.format(
++                pythonlib = 'platform-python{}.{}{}'.format(
                      sys.hexversion >> 24, (sys.hexversion >> 16) & 0xff,
                      sysconfig.get_config_var('ABIFLAGS'))
                  return ext.libraries + [pythonlib]
@@ -133,7 +133,7 @@ index 4f8c042..639f220 100644
  
  
 -libpython$(LDVERSION).so: $(LIBRARY_OBJS)
-+libplatformpython$(LDVERSION).so: $(LIBRARY_OBJS)
++libplatform-python$(LDVERSION).so: $(LIBRARY_OBJS)
  	if test $(INSTSONAME) != $(LDLIBRARY); then \
  		$(BLDSHARED) -Wl,-h$(INSTSONAME) -o $(INSTSONAME) $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
  		$(LN) -f $(INSTSONAME) $@; \
@@ -142,17 +142,17 @@ index 4f8c042..639f220 100644
  	fi
  
 -libpython3.so:	libpython$(LDVERSION).so
-+libplatformpython3.so:	libplatformpython$(LDVERSION).so
++libplatform-python3.so:	libplatform-python$(LDVERSION).so
  	$(BLDSHARED) $(NO_AS_NEEDED) -o $@ -Wl,-h$@ $^
  
 -libpython$(LDVERSION).dylib: $(LIBRARY_OBJS)
 -	 $(CC) -dynamiclib -Wl,-single_module $(PY_LDFLAGS) -undefined dynamic_lookup -Wl,-install_name,$(prefix)/lib/libpython$(LDVERSION).dylib -Wl,-compatibility_version,$(VERSION) -Wl,-current_version,$(VERSION) -o $@ $(LIBRARY_OBJS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
-+libplatformpython$(LDVERSION).dylib: $(LIBRARY_OBJS)
-+	 $(CC) -dynamiclib -Wl,-single_module $(PY_LDFLAGS) -undefined dynamic_lookup -Wl,-install_name,$(prefix)/lib/libplatformpython$(LDVERSION).dylib -Wl,-compatibility_version,$(VERSION) -Wl,-current_version,$(VERSION) -o $@ $(LIBRARY_OBJS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
++libplatform-python$(LDVERSION).dylib: $(LIBRARY_OBJS)
++	 $(CC) -dynamiclib -Wl,-single_module $(PY_LDFLAGS) -undefined dynamic_lookup -Wl,-install_name,$(prefix)/lib/libplatform-python$(LDVERSION).dylib -Wl,-compatibility_version,$(VERSION) -Wl,-current_version,$(VERSION) -o $@ $(LIBRARY_OBJS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST); \
  
  
 -libpython$(VERSION).sl: $(LIBRARY_OBJS)
-+libplatformpython$(VERSION).sl: $(LIBRARY_OBJS)
++libplatform-python$(VERSION).sl: $(LIBRARY_OBJS)
  	$(LDSHARED) -o $@ $(LIBRARY_OBJS) $(MODLIBS) $(SHLIBS) $(LIBC) $(LIBM) $(LDLAST)
  
  # Copy up the gdb python hooks into a position where they can be automatically
@@ -161,7 +161,7 @@ index 4f8c042..639f220 100644
  # This rule builds the Cygwin Python DLL and import library if configured
  # for a shared core library; otherwise, this rule is a noop.
 -$(DLLLIBRARY) libpython$(VERSION).dll.a: $(LIBRARY_OBJS)
-+$(DLLLIBRARY) libplatformpython$(VERSION).dll.a: $(LIBRARY_OBJS)
++$(DLLLIBRARY) libplatform-python$(VERSION).dll.a: $(LIBRARY_OBJS)
  	if test -n "$(DLLLIBRARY)"; then \
  		$(LDSHARED) -Wl,--out-implib=$@ -o $(DLLLIBRARY) $^ \
  			$(LIBS) $(MODLIBS) $(SYSLIBS) $(LDLAST); \
@@ -175,12 +175,12 @@ index 4f8c042..639f220 100644
 -	$(LN) -fs "../../../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(LIBPL)/libpython$(VERSION).dylib"
 -	$(LN) -fs "../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(prefix)/lib/libpython$(LDVERSION).dylib"
 -	$(LN) -fs "../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(prefix)/lib/libpython$(VERSION).dylib"
-+	$(LN) -fs "../../../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(LIBPL)/libplatformpython$(LDVERSION).a"
-+	$(LN) -fs "../../../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(LIBPL)/libplatformpython$(LDVERSION).dylib"
-+	$(LN) -fs "../../../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(LIBPL)/libplatformpython$(VERSION).a"
-+	$(LN) -fs "../../../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(LIBPL)/libplatformpython$(VERSION).dylib"
-+	$(LN) -fs "../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(prefix)/lib/libplatformpython$(LDVERSION).dylib"
-+	$(LN) -fs "../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(prefix)/lib/libplatformpython$(VERSION).dylib"
++	$(LN) -fs "../../../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(LIBPL)/libplatform-python$(LDVERSION).a"
++	$(LN) -fs "../../../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(LIBPL)/libplatform-python$(LDVERSION).dylib"
++	$(LN) -fs "../../../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(LIBPL)/libplatform-python$(VERSION).a"
++	$(LN) -fs "../../../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(LIBPL)/libplatform-python$(VERSION).dylib"
++	$(LN) -fs "../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(prefix)/lib/libplatformp-ython$(LDVERSION).dylib"
++	$(LN) -fs "../$(PYTHONFRAMEWORK)" "$(DESTDIR)$(prefix)/lib/libplatformp-ython$(VERSION).dylib"
  
  # This installs the IDE, the Launcher and other apps into /Applications
  frameworkinstallapps:
@@ -193,7 +193,7 @@ index e13da75..c45c4d8 100644
  
      elif opt in ('--libs', '--ldflags'):
 -        libs = ['-lpython' + pyver + sys.abiflags]
-+        libs = ['-lplatformpython' + pyver + sys.abiflags]
++        libs = ['-lplatform-python' + pyver + sys.abiflags]
          libs += getvar('LIBS').split()
          libs += getvar('SYSLIBS').split()
          # add the prefix/lib/pythonX.Y/config dir, but only if there is no
@@ -206,7 +206,7 @@ index 30c6927..6606322 100644
  SYSLIBS="$LIBM $LIBC"
  ABIFLAGS="@ABIFLAGS@"
 -LIBS="-lpython${VERSION}${ABIFLAGS} @LIBS@ $SYSLIBS"
-+LIBS="-lplatformpython${VERSION}${ABIFLAGS} @LIBS@ $SYSLIBS"
++LIBS="-lplatform-python${VERSION}${ABIFLAGS} @LIBS@ $SYSLIBS"
  BASECFLAGS="@BASECFLAGS@"
  LDLIBRARY="@LDLIBRARY@"
  LINKFORSHARED="@LINKFORSHARED@"
@@ -231,7 +231,7 @@ index ae69867..c7bf798 100644
  Libs.private: @LIBS@
 -Libs: -L${libdir} -lpython@VERSION@@ABIFLAGS@
 -Cflags: -I${includedir}/python@VERSION@@ABIFLAGS@
-+Libs: -L${libdir} -lplatformpython@VERSION@@ABIFLAGS@
++Libs: -L${libdir} -lplatform-python@VERSION@@ABIFLAGS@
 +Cflags: -I${includedir}/platform-python@VERSION@@ABIFLAGS@
 diff --git a/Modules/getpath.c b/Modules/getpath.c
 index c4055be..248d654 100644
@@ -255,7 +255,7 @@ index 8db8de8..3d6a3d0 100755
  	 	ExtraLibDir='$(LIBPL)'
  	 fi
 -	 ExtraLibs="-L$ExtraLibDir -lpython\$(VERSION)";;
-+	 ExtraLibs="-L$ExtraLibDir -lplatformpython\$(VERSION)";;
++	 ExtraLibs="-L$ExtraLibDir -lplatform-python\$(VERSION)";;
  esac
  
  # Main loop
@@ -268,7 +268,7 @@ index eea17a4..335722f 100755
  if test -z "$LIBRARY"
  then
 -	LIBRARY='libpython$(VERSION)$(ABIFLAGS).a'
-+	LIBRARY='libplatformpython$(VERSION)$(ABIFLAGS).a'
++	LIBRARY='libplatform-python$(VERSION)$(ABIFLAGS).a'
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBRARY" >&5
  $as_echo "$LIBRARY" >&6; }
@@ -278,60 +278,60 @@ index eea17a4..335722f 100755
      CYGWIN*)
 -          LDLIBRARY='libpython$(LDVERSION).dll.a'
 -          DLLLIBRARY='libpython$(LDVERSION).dll'
-+          LDLIBRARY='libplatformpython$(LDVERSION).dll.a'
-+          DLLLIBRARY='libplatformpython$(LDVERSION).dll'
++          LDLIBRARY='libplatform-python$(LDVERSION).dll.a'
++          DLLLIBRARY='libplatfor-mpython$(LDVERSION).dll'
            ;;
      SunOS*)
 -	  LDLIBRARY='libpython$(LDVERSION).so'
 -	  BLDLIBRARY='-Wl,-R,$(LIBDIR) -L. -lpython$(LDVERSION)'
-+	  LDLIBRARY='libplatformpython$(LDVERSION).so'
-+	  BLDLIBRARY='-Wl,-R,$(LIBDIR) -L. -lplatformpython$(LDVERSION)'
++	  LDLIBRARY='libplatform-python$(LDVERSION).so'
++	  BLDLIBRARY='-Wl,-R,$(LIBDIR) -L. -lplatform-python$(LDVERSION)'
  	  RUNSHARED=LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
  	  INSTSONAME="$LDLIBRARY".$SOVERSION
  	  if test "$with_pydebug" != yes
  	  then
 -	      PY3LIBRARY=libpython3.so
-+	      PY3LIBRARY=libplatformpython3.so
++	      PY3LIBRARY=libplatform-python3.so
  	  fi
            ;;
      Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*)
 -	  LDLIBRARY='libpython$(LDVERSION).so'
 -	  BLDLIBRARY='-L. -lpython$(LDVERSION)'
-+	  LDLIBRARY='libplatformpython$(LDVERSION).so'
-+	  BLDLIBRARY='-L. -lplatformpython$(LDVERSION)'
++	  LDLIBRARY='libplatform-python$(LDVERSION).so'
++	  BLDLIBRARY='-L. -lplatform-python$(LDVERSION)'
  	  RUNSHARED=LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
  	  INSTSONAME="$LDLIBRARY".$SOVERSION
  	  if test "$with_pydebug" != yes
            then
 -	      PY3LIBRARY=libpython3.so
-+	      PY3LIBRARY=libplatformpython3.so
++	      PY3LIBRARY=libplatform-python3.so
  	  fi
  	  ;;
      hp*|HP*)
  	  case `uname -m` in
  		ia64)
 -			LDLIBRARY='libpython$(LDVERSION).so'
-+			LDLIBRARY='libplatformpython$(LDVERSION).so'
++			LDLIBRARY='libplatform-python$(LDVERSION).so'
  			;;
  		*)
 -			LDLIBRARY='libpython$(LDVERSION).sl'
-+			LDLIBRARY='libplatformpython$(LDVERSION).sl'
++			LDLIBRARY='libplatform-python$(LDVERSION).sl'
  			;;
  	  esac
 -	  BLDLIBRARY='-Wl,+b,$(LIBDIR) -L. -lpython$(LDVERSION)'
-+	  BLDLIBRARY='-Wl,+b,$(LIBDIR) -L. -lplatformpython$(LDVERSION)'
++	  BLDLIBRARY='-Wl,+b,$(LIBDIR) -L. -lplatform-python$(LDVERSION)'
  	  RUNSHARED=SHLIB_PATH=`pwd`${SHLIB_PATH:+:${SHLIB_PATH}}
  	  ;;
      Darwin*)
 -    	LDLIBRARY='libpython$(LDVERSION).dylib'
 -	BLDLIBRARY='-L. -lpython$(LDVERSION)'
-+    	LDLIBRARY='libplatformpython$(LDVERSION).dylib'
-+	BLDLIBRARY='-L. -lplatformpython$(LDVERSION)'
++    	LDLIBRARY='libplatform-python$(LDVERSION).dylib'
++	BLDLIBRARY='-L. -lplatform-python$(LDVERSION)'
  	RUNSHARED=DYLD_LIBRARY_PATH=`pwd`${DYLD_LIBRARY_PATH:+:${DYLD_LIBRARY_PATH}}
  	;;
      AIX*)
 -	LDLIBRARY='libpython$(LDVERSION).so'
-+	LDLIBRARY='libplatformpython$(LDVERSION).so'
++	LDLIBRARY='libplatform-python$(LDVERSION).so'
  	RUNSHARED=LIBPATH=`pwd`${LIBPATH:+:${LIBPATH}}
  	;;
  
@@ -340,7 +340,7 @@ index eea17a4..335722f 100755
      CYGWIN*)
            BLDLIBRARY='$(LIBRARY)'
 -          LDLIBRARY='libpython$(LDVERSION).dll.a'
-+          LDLIBRARY='libplatformpython$(LDVERSION).dll.a'
++          LDLIBRARY='libplatform-python$(LDVERSION).dll.a'
            ;;
    esac
  fi
@@ -362,7 +362,7 @@ index 74b0e57..bc8690a 100644
  if test -z "$LIBRARY"
  then
 -	LIBRARY='libpython$(VERSION)$(ABIFLAGS).a'
-+	LIBRARY='libplatformpython$(VERSION)$(ABIFLAGS).a'
++	LIBRARY='libplatform-python$(VERSION)$(ABIFLAGS).a'
  fi
  AC_MSG_RESULT($LIBRARY)
  
@@ -372,60 +372,60 @@ index 74b0e57..bc8690a 100644
      CYGWIN*)
 -          LDLIBRARY='libpython$(LDVERSION).dll.a'
 -          DLLLIBRARY='libpython$(LDVERSION).dll'
-+          LDLIBRARY='libplatformpython$(LDVERSION).dll.a'
-+          DLLLIBRARY='libplatformpython$(LDVERSION).dll'
++          LDLIBRARY='libplatform-python$(LDVERSION).dll.a'
++          DLLLIBRARY='libplatform-python$(LDVERSION).dll'
            ;;
      SunOS*)
 -	  LDLIBRARY='libpython$(LDVERSION).so'
 -	  BLDLIBRARY='-Wl,-R,$(LIBDIR) -L. -lpython$(LDVERSION)'
-+	  LDLIBRARY='libplatformpython$(LDVERSION).so'
-+	  BLDLIBRARY='-Wl,-R,$(LIBDIR) -L. -lplatformpython$(LDVERSION)'
++	  LDLIBRARY='libplatform-python$(LDVERSION).so'
++	  BLDLIBRARY='-Wl,-R,$(LIBDIR) -L. -lplatform-python$(LDVERSION)'
  	  RUNSHARED=LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
  	  INSTSONAME="$LDLIBRARY".$SOVERSION
  	  if test "$with_pydebug" != yes
  	  then
 -	      PY3LIBRARY=libpython3.so
-+	      PY3LIBRARY=libplatformpython3.so
++	      PY3LIBRARY=libplatform-python3.so
  	  fi
            ;;
      Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*|OpenBSD*)
 -	  LDLIBRARY='libpython$(LDVERSION).so'
 -	  BLDLIBRARY='-L. -lpython$(LDVERSION)'
-+	  LDLIBRARY='libplatformpython$(LDVERSION).so'
-+	  BLDLIBRARY='-L. -lplatformpython$(LDVERSION)'
++	  LDLIBRARY='libplatform-python$(LDVERSION).so'
++	  BLDLIBRARY='-L. -lplatform-python$(LDVERSION)'
  	  RUNSHARED=LD_LIBRARY_PATH=`pwd`${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
  	  INSTSONAME="$LDLIBRARY".$SOVERSION
  	  if test "$with_pydebug" != yes
            then
 -	      PY3LIBRARY=libpython3.so
-+	      PY3LIBRARY=libplatformpython3.so
++	      PY3LIBRARY=libplatform-python3.so
  	  fi
  	  ;;
      hp*|HP*)
  	  case `uname -m` in
  		ia64)
 -			LDLIBRARY='libpython$(LDVERSION).so'
-+			LDLIBRARY='libplatformpython$(LDVERSION).so'
++			LDLIBRARY='libplatform-python$(LDVERSION).so'
  			;;
  		*)
 -			LDLIBRARY='libpython$(LDVERSION).sl'
-+			LDLIBRARY='libplatformpython$(LDVERSION).sl'
++			LDLIBRARY='libplatform-python$(LDVERSION).sl'
  			;;
  	  esac
 -	  BLDLIBRARY='-Wl,+b,$(LIBDIR) -L. -lpython$(LDVERSION)'
-+	  BLDLIBRARY='-Wl,+b,$(LIBDIR) -L. -lplatformpython$(LDVERSION)'
++	  BLDLIBRARY='-Wl,+b,$(LIBDIR) -L. -lplatform-python$(LDVERSION)'
  	  RUNSHARED=SHLIB_PATH=`pwd`${SHLIB_PATH:+:${SHLIB_PATH}}
  	  ;;
      Darwin*)
 -    	LDLIBRARY='libpython$(LDVERSION).dylib'
 -	BLDLIBRARY='-L. -lpython$(LDVERSION)'
-+    	LDLIBRARY='libplatformpython$(LDVERSION).dylib'
-+	BLDLIBRARY='-L. -lplatformpython$(LDVERSION)'
++    	LDLIBRARY='libplatform-python$(LDVERSION).dylib'
++	BLDLIBRARY='-L. -lplatform-python$(LDVERSION)'
  	RUNSHARED=DYLD_LIBRARY_PATH=`pwd`${DYLD_LIBRARY_PATH:+:${DYLD_LIBRARY_PATH}}
  	;;
      AIX*)
 -	LDLIBRARY='libpython$(LDVERSION).so'
-+	LDLIBRARY='libplatformpython$(LDVERSION).so'
++	LDLIBRARY='libplatform-python$(LDVERSION).so'
  	RUNSHARED=LIBPATH=`pwd`${LIBPATH:+:${LIBPATH}}
  	;;
  
@@ -434,7 +434,7 @@ index 74b0e57..bc8690a 100644
      CYGWIN*)
            BLDLIBRARY='$(LIBRARY)'
 -          LDLIBRARY='libpython$(LDVERSION).dll.a'
-+          LDLIBRARY='libplatformpython$(LDVERSION).dll.a'
++          LDLIBRARY='libplatform-python$(LDVERSION).dll.a'
            ;;
    esac
  fi
