@@ -498,7 +498,6 @@ BuildRequires: python-rpm-macros
 Requires: python-rpm-macros
 Requires: python3-rpm-macros
 Requires: python3-rpm-generators
-Conflicts: %{name} < %{version}-%{release}
 
 %description devel
 The Python programming language's interpreter can be extended with
@@ -1026,18 +1025,6 @@ CheckPython optimized
 %post libs-devel -p /sbin/ldconfig
 
 %postun libs-devel -p /sbin/ldconfig
-
-%post
-/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
-
-%postun
-if [ $1 -eq 0 ] ; then
-    /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
-    /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
-fi
-
-%posttrans
-/usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %files
 %defattr(-, root, root)
