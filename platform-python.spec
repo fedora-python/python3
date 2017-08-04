@@ -99,7 +99,7 @@
 %global with_computed_gotos yes
 
 # Turn this to 0 to turn off the "check" phase:
-%global run_selftest_suite 0
+%global run_selftest_suite 1
 
 # We want to byte-compile the .py files within the packages using the new
 # python3 binary.
@@ -984,6 +984,8 @@ CheckPython() {
   LD_LIBRARY_PATH=$ConfDir $ConfDir/python -m test.regrtest \
     -wW --slowest --findleaks \
     -x test_distutils \
+    # Disable test_site for now
+    -x test_site \
     %ifarch ppc64le aarch64
     -x test_faulthandler \
     %endif
