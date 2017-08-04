@@ -848,10 +848,14 @@ sed -i -e "s/'pyconfig.h'/'%{_pyconfig_h}'/" \
   %{buildroot}%{pylibdir}/distutils/sysconfig.py \
   %{buildroot}%{pylibdir}/sysconfig.py
 
+# Platform Python: Copy the executable to libexec
+mkdir -p %{buildroot}%{_libexecdir}
+cp %{buildroot}%{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/platform-python
+
 # Switch all shebangs to refer to the specific Python version.
 LD_LIBRARY_PATH=./build/optimized ./build/optimized/python \
   Tools/scripts/pathfix.py \
-  -i "%{_bindir}/python%{pybasever}" \
+  -i "%{_libexecdir}/platform-python" \
   %{buildroot}
 
 # Remove shebang lines from .py files that aren't executable, and
@@ -903,7 +907,7 @@ iconv -f iso8859-1 -t utf-8 %{buildroot}/%{pylibdir}/Demo/rpc/README > README.co
 find %{buildroot} -type f -a -name "*.py" -print0 | \
     LD_LIBRARY_PATH="%{buildroot}%{dynload_dir}/:%{buildroot}%{_libdir}" \
     PYTHONPATH="%{buildroot}%{_libdir}/%{name} %{buildroot}%{_libdir}/%{name}/site-packages" \
-    xargs -0 %{buildroot}%{_bindir}/python%{pybasever} -O -c 'import py_compile, sys; [py_compile.compile(f, dfile=f.partition("%{buildroot}")[2], optimize=opt) for opt in range(3) for f in sys.argv[1:]]' || :
+    xargs -0 %{buildroot}%{_libexecdir}/platform-python -O -c 'import py_compile, sys; [py_compile.compile(f, dfile=f.partition("%{buildroot}")[2], optimize=opt) for opt in range(3) for f in sys.argv[1:]]' || :
 
 # Fixup permissions for shared libraries from non-standard 555 to standard 755:
 find %{buildroot} \
@@ -943,10 +947,6 @@ echo '[ $? -eq 127 ] && echo "Could not find python%{LDVERSION_optimized}-`uname
   %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
   chmod +x %{buildroot}%{_bindir}/python%{LDVERSION_optimized}-config
 
-# Platform Python: Copy the executable to libexec
-mkdir -p %{buildroot}%{_libexecdir}
-cp %{buildroot}%{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/platform-python
-
 
 # ======================================================
 # Running the upstream test suite
@@ -958,7 +958,7 @@ cp %{buildroot}%{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/platform
 find %{buildroot} -type f -a -name "*.py" -print0 | \
     LD_LIBRARY_PATH="%{buildroot}%{dynload_dir}/:%{buildroot}%{_libdir}" \
     PYTHONPATH="%{buildroot}%{_libdir}/%{name} %{buildroot}%{_libdir}/%{name}/site-packages" \
-    xargs -0 %{buildroot}%{_bindir}/python%{pybasever} %{SOURCE8}
+    xargs -0 %{buildroot}%{_libexecdir}/platform-python %{SOURCE8}
 
 # For ppc64 we need a larger stack than default (rhbz#1292462)
 %ifarch %{power64}
