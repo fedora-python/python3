@@ -390,6 +390,13 @@ Patch270: 00270-fix-ssl-alpn-hook-test.patch
 # Reported upstream: http://bugs.python.org/issue31034
 Patch271: 00271-asyncio-get-default-signal-handler.patch
 
+# 00272 #
+# Reject newline characters in ftplib.FTP.putline() arguments to
+# avoid FTP protocol stream injection via malicious URLs.
+# rhbz#1478916
+# Fixed upstream: http://bugs.python.org/issue30119
+Patch272: 00272-fix-ftplib-to-reject-newlines.patch
+
 # (New patches go here ^^^)
 #
 # When adding new patches to "python" and "python3" in Fedora, EL, etc.,
