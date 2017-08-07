@@ -824,6 +824,16 @@ sed -i -e "s/'pyconfig.h'/'%{_pyconfig_h}'/" \
 mkdir -p %{buildroot}%{_libexecdir}
 cp %{buildroot}%{_bindir}/python%{pybasever} %{buildroot}%{_libexecdir}/platform-python
 
+# Create symlinks of the platform-python binary
+
+ln -s \
+  %{_libexecdir}/platform-python \
+  %{buildroot}%{_libexecdir}/platform-python3
+
+ln -s \
+  %{_libexecdir}/platform-python3 \
+  %{buildroot}%{_libexecdir}/platform-python%{pybasever}
+
 # Switch all shebangs to refer to the specific Python version.
 LD_LIBRARY_PATH=./build/optimized ./build/optimized/python \
   Tools/scripts/pathfix.py \
@@ -1005,7 +1015,7 @@ CheckPython optimized
 %doc README.rst
 %exclude %{_bindir}/pydoc*
 %exclude %{_bindir}/python3
-%{_libexecdir}/platform-python
+%{_libexecdir}/platform-python*
 %exclude %{_bindir}/python%{pybasever}
 %exclude %{_bindir}/python%{pybasever}m
 %exclude %{_bindir}/pyvenv
