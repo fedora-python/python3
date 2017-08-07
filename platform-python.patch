@@ -1,5 +1,5 @@
 diff --git a/Lib/distutils/command/build_ext.py b/Lib/distutils/command/build_ext.py
-index 74de782..3752cb4 100644
+index 74de782..8ca9d6d 100644
 --- a/Lib/distutils/command/build_ext.py
 +++ b/Lib/distutils/command/build_ext.py
 @@ -747,7 +747,7 @@ class build_ext(Command):
@@ -12,7 +12,7 @@ index 74de782..3752cb4 100644
                      sysconfig.get_config_var('ABIFLAGS'))
                  return ext.libraries + [pythonlib]
 diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
-index ed44a93..84073f9 100644
+index 8e41290..d37cf2f 100644
 --- a/Lib/distutils/command/install.py
 +++ b/Lib/distutils/command/install.py
 @@ -29,9 +29,9 @@ WINDOWS_SCHEME = {
@@ -38,7 +38,7 @@ index ed44a93..84073f9 100644
          'data'   : '$userbase',
          }
 diff --git a/Lib/distutils/sysconfig.py b/Lib/distutils/sysconfig.py
-index 2013efa..bb265f7 100644
+index 5c2670f..6e90b40 100644
 --- a/Lib/distutils/sysconfig.py
 +++ b/Lib/distutils/sysconfig.py
 @@ -130,7 +130,7 @@ def get_python_lib(plat_specific=0, standard_lib=0, prefix=None):
@@ -51,7 +51,7 @@ index 2013efa..bb265f7 100644
              return libpython
          else:
 diff --git a/Lib/site.py b/Lib/site.py
-index b5fe571..d3f9fd6 100644
+index 386d2ad..cfef02b 100644
 --- a/Lib/site.py
 +++ b/Lib/site.py
 @@ -305,7 +305,7 @@ def getsitepackages(prefixes=None):
@@ -64,7 +64,7 @@ index b5fe571..d3f9fd6 100644
          else:
              sitepackages.append(prefix)
 diff --git a/Lib/sysconfig.py b/Lib/sysconfig.py
-index 240bb66..c6962f2 100644
+index d35b5eb..25059e4 100644
 --- a/Lib/sysconfig.py
 +++ b/Lib/sysconfig.py
 @@ -20,14 +20,14 @@ __all__ = [
@@ -88,7 +88,7 @@ index 240bb66..c6962f2 100644
          'scripts': '{base}/bin',
          'data': '{base}',
          },
-@@ -61,11 +61,11 @@ _INSTALL_SCHEMES = {
+@@ -61,13 +61,13 @@ _INSTALL_SCHEMES = {
          'data': '{userbase}',
          },
      'posix_user': {
@@ -97,19 +97,23 @@ index 240bb66..c6962f2 100644
 -        'purelib': '{userbase}/lib/python{py_version_short}/site-packages',
 -        'platlib': '{userbase}/lib/python{py_version_short}/site-packages',
 -        'include': '{userbase}/include/python{py_version_short}',
-+        'stdlib': '{userbase}/lib/platform-python{py_version_short}',
-+        'platstdlib': '{userbase}/lib/platform-python{py_version_short}',
-+        'purelib': '{userbase}/lib/platform-python{py_version_short}/site-packages',
-+        'platlib': '{userbase}/lib/platform-python{py_version_short}/site-packages',
-+        'include': '{userbase}/include/platform-python{py_version_short}',
-         'scripts': '{userbase}/bin',
-         'data': '{userbase}',
+-        'scripts': '{userbase}/bin',
+-        'data': '{userbase}',
++        'stdlib': '{installed_base}/lib/platform-python{py_version_short}',
++        'platstdlib': '{platbase}/lib/platform-python{py_version_short}',
++        'purelib': '{base}/lib/platform-python{py_version_short}/site-packages',
++        'platlib': '{platbase}/lib/platform-python{py_version_short}/site-packages',
++        'include': '{installed_base}/include/platform-python{py_version_short}{abiflags}',
++        'scripts': '{base}/bin',
++        'data': '{base}',
          },
+     'osx_framework_user': {
+         'stdlib': '{userbase}/lib/python',
 diff --git a/Makefile.pre.in b/Makefile.pre.in
-index 4f8c042..639f220 100644
+index 8b6454f..bf83e4f 100644
 --- a/Makefile.pre.in
 +++ b/Makefile.pre.in
-@@ -137,10 +137,10 @@ SCRIPTDIR=	$(prefix)/lib64
+@@ -137,10 +137,10 @@ SCRIPTDIR=	$(prefix)/lib
  ABIFLAGS=	@ABIFLAGS@
  
  # Detailed destination directories
@@ -124,7 +128,7 @@ index 4f8c042..639f220 100644
  
  # Symbols used for using shared libraries
  SHLIB_SUFFIX=	@SHLIB_SUFFIX@
-@@ -590,7 +590,7 @@ sharedmods: $(BUILDPYTHON) pybuilddir.txt Modules/_math.o
+@@ -590,7 +590,7 @@ $(LIBRARY): $(LIBRARY_OBJS)
  	$(AR) $(ARFLAGS) $@ $(MODOBJS)
  	$(RANLIB) $@
  
@@ -181,7 +185,7 @@ index 4f8c042..639f220 100644
  # This installs the IDE, the Launcher and other apps into /Applications
  frameworkinstallapps:
 diff --git a/Misc/python-config.in b/Misc/python-config.in
-index e13da75..c45c4d8 100644
+index e13da75..a72893c 100644
 --- a/Misc/python-config.in
 +++ b/Misc/python-config.in
 @@ -47,7 +47,7 @@ for opt in opt_flags:
@@ -194,7 +198,7 @@ index e13da75..c45c4d8 100644
          libs += getvar('SYSLIBS').split()
          # add the prefix/lib/pythonX.Y/config dir, but only if there is no
 diff --git a/Misc/python-config.sh.in b/Misc/python-config.sh.in
-index 30c6927..6606322 100644
+index 30c6927..33ea82f 100644
 --- a/Misc/python-config.sh.in
 +++ b/Misc/python-config.sh.in
 @@ -40,7 +40,7 @@ LIBM="@LIBM@"
@@ -218,7 +222,7 @@ index 30c6927..6606322 100644
  # Scan for --help or unknown argument.
  for ARG in $*
 diff --git a/Misc/python.pc.in b/Misc/python.pc.in
-index ae69867..c7bf798 100644
+index ae69867..38405a1 100644
 --- a/Misc/python.pc.in
 +++ b/Misc/python.pc.in
 @@ -9,5 +9,5 @@ Description: Python library
@@ -230,7 +234,7 @@ index ae69867..c7bf798 100644
 +Libs: -L${libdir} -lplatform-python@VERSION@@ABIFLAGS@
 +Cflags: -I${includedir}/platform-python@VERSION@@ABIFLAGS@
 diff --git a/Modules/getpath.c b/Modules/getpath.c
-index c4055be..248d654 100644
+index 0f91643..8d7b675 100644
 --- a/Modules/getpath.c
 +++ b/Modules/getpath.c
 @@ -494,7 +494,7 @@ calculate_path(void)
@@ -243,7 +247,7 @@ index c4055be..248d654 100644
      if (!_pythonpath || !_prefix || !_exec_prefix || !lib_python) {
          Py_FatalError(
 diff --git a/Modules/makesetup b/Modules/makesetup
-index 8db8de8..3d6a3d0 100755
+index 8db8de8..430e323 100755
 --- a/Modules/makesetup
 +++ b/Modules/makesetup
 @@ -92,7 +92,7 @@ CYGWIN*) if test $libdir = .
@@ -256,10 +260,10 @@ index 8db8de8..3d6a3d0 100755
  
  # Main loop
 diff --git a/configure b/configure
-index eea17a4..335722f 100755
+index eea17a4..76b3d3a 100755
 --- a/configure
 +++ b/configure
-@@ -5733,7 +5733,7 @@ esac
+@@ -5741,7 +5741,7 @@ esac
  $as_echo_n "checking LIBRARY... " >&6; }
  if test -z "$LIBRARY"
  then
@@ -268,7 +272,7 @@ index eea17a4..335722f 100755
  fi
  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBRARY" >&5
  $as_echo "$LIBRARY" >&6; }
-@@ -5949,48 +5949,48 @@ $as_echo "#define Py_ENABLE_SHARED 1" >>confdefs.h
+@@ -5957,48 +5957,48 @@ $as_echo "#define Py_ENABLE_SHARED 1" >>confdefs.h
  
    case $ac_sys_system in
      CYGWIN*)
@@ -331,7 +335,7 @@ index eea17a4..335722f 100755
  	RUNSHARED=LIBPATH=`pwd`${LIBPATH:+:${LIBPATH}}
  	;;
  
-@@ -6000,7 +6000,7 @@ else # shared is disabled
+@@ -6008,7 +6008,7 @@ else # shared is disabled
    case $ac_sys_system in
      CYGWIN*)
            BLDLIBRARY='$(LIBRARY)'
@@ -340,7 +344,7 @@ index eea17a4..335722f 100755
            ;;
    esac
  fi
-@@ -9440,7 +9440,7 @@ $as_echo "$CFLAGSFORSHARED" >&6; }
+@@ -9448,7 +9448,7 @@ $as_echo "$CFLAGSFORSHARED" >&6; }
  # For platforms on which shared libraries are not allowed to have unresolved
  # symbols, this must be set to $(LIBS) (expanded by make). We do this even
  # if it is not required, since it creates a dependency of the shared library
@@ -350,7 +354,7 @@ index eea17a4..335722f 100755
  # on systems where this approach causes problems.
  
 diff --git a/configure.ac b/configure.ac
-index 74b0e57..bc8690a 100644
+index 74b0e57..ce28eeb 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -987,7 +987,7 @@ AC_SUBST(LIBRARY)

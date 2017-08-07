@@ -79,16 +79,16 @@ index b9bbfe5..2a5f29c 100644
          'data': '{userbase}',
          },
      'posix_user': {
--        'stdlib': '{userbase}/lib/platform-python{py_version_short}',
--        'platstdlib': '{userbase}/lib/platform-python{py_version_short}',
-+        'stdlib': '{userbase}/lib64/platform-python{py_version_short}',
-+        'platstdlib': '{userbase}/lib64/platform-python{py_version_short}',
-         'purelib': '{userbase}/lib/platform-python{py_version_short}/site-packages',
--        'platlib': '{userbase}/lib/platform-python{py_version_short}/site-packages',
-+        'platlib': '{userbase}/lib64/platform-python{py_version_short}/site-packages',
-         'include': '{userbase}/include/platform-python{py_version_short}',
-         'scripts': '{userbase}/bin',
-         'data': '{userbase}',
+-        'stdlib': '{installed_base}/lib/platform-python{py_version_short}',
+-        'platstdlib': '{platbase}/lib/platform-python{py_version_short}',
++        'stdlib': '{installed_base}/lib64/platform-python{py_version_short}',
++        'platstdlib': '{platbase}/lib64/platform-python{py_version_short}',
+         'purelib': '{base}/lib/platform-python{py_version_short}/site-packages',
+-        'platlib': '{platbase}/lib/platform-python{py_version_short}/site-packages',
++        'platlib': '{platbase}/lib64/platform-python{py_version_short}/site-packages',
+         'include': '{installed_base}/include/platform-python{py_version_short}{abiflags}',
+         'scripts': '{base}/bin',
+         'data': '{base}',
 diff --git a/Lib/test/test_site.py b/Lib/test/test_site.py
 index f698927..bc977b5 100644
 --- a/Lib/test/test_site.py

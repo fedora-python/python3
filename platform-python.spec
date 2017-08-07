@@ -981,11 +981,9 @@ CheckPython() {
   # test_faulthandler.test_register_chain currently fails on ppc64le and
   #   aarch64, see upstream bug http://bugs.python.org/issue21131
   WITHIN_PYTHON_RPM_BUILD= \
-  LD_LIBRARY_PATH=$ConfDir $ConfDir/python -m test.regrtest \
+  LD_LIBRARY_PATH=$ConfDir $ConfDir/python -m test \
     -wW --slowest --findleaks \
     -x test_distutils \
-    # Disable test_site for now
-    -x test_site \
     %ifarch ppc64le aarch64
     -x test_faulthandler \
     %endif
