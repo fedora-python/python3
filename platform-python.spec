@@ -975,6 +975,7 @@ CheckPython() {
   LD_LIBRARY_PATH=$ConfDir $ConfDir/python -m test \
     -wW --slowest --findleaks \
     -x test_distutils \
+    -x test_resource \
     %ifarch ppc64le aarch64
     -x test_faulthandler \
     %endif
