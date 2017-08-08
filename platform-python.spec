@@ -126,7 +126,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: platform-python
 Version: %{pybasever}.2
-Release: 7%{?dist}
+Release: 8%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -193,6 +193,8 @@ Source3: macros.pybytecompile-%{name}
 # Written by bkabrda
 Source8: check-pyc-and-pyo-timestamps.py
 
+# Platform python patch
+# https://fedoraproject.org/wiki/Changes/Platform_Python_Stack
 Patch0: platform-python.patch
 
 # Fixup distutils/unixccompiler.py to remove standard library path from rpath:
@@ -1324,10 +1326,8 @@ CheckPython optimized
 # ======================================================
 
 %changelog
-* Fri Aug 11 2017 Michal Cyprian <mcyprian@redhat.com> - 3.6.2-7
-- Revert "Add --executable option to install.py command"
-  This enhancement is currently not needed and it can possibly
-  collide with `pip --editable`option
+* Tue Aug 08 2017 Charalampos Stratakis <cstratak@redhat.com> - 3.6.2-8
+- Create the platform-python package
 
 * Mon Aug 07 2017 Iryna Shcherbina <ishcherb@redhat.com> - 3.6.2-6
 - Fix the "urllib FTP protocol stream injection" vulnerability
