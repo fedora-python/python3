@@ -12,7 +12,7 @@ index 74de782..8ca9d6d 100644
                      sysconfig.get_config_var('ABIFLAGS'))
                  return ext.libraries + [pythonlib]
 diff --git a/Lib/distutils/command/install.py b/Lib/distutils/command/install.py
-index 8e41290..d37cf2f 100644
+index ec135d4..60c3a18 100644
 --- a/Lib/distutils/command/install.py
 +++ b/Lib/distutils/command/install.py
 @@ -29,9 +29,9 @@ WINDOWS_SCHEME = {
@@ -109,6 +109,19 @@ index d35b5eb..25059e4 100644
          },
      'osx_framework_user': {
          'stdlib': '{userbase}/lib/python',
+diff --git a/Lib/test/test_sysconfig.py b/Lib/test/test_sysconfig.py
+index a29ca96..fea10e3 100644
+--- a/Lib/test/test_sysconfig.py
++++ b/Lib/test/test_sysconfig.py
+@@ -260,7 +260,7 @@ class TestSysConfig(unittest.TestCase):
+             self.assertEqual(get(real), get(link))
+         finally:
+             unlink(link)
+-
++    @unittest.skip('posix_prefix and posix_user schemes are the same so skipping the test')
+     def test_user_similar(self):
+         # Issue #8759: make sure the posix scheme for the users
+         # is similar to the global posix_prefix one
 diff --git a/Makefile.pre.in b/Makefile.pre.in
 index 8b6454f..bf83e4f 100644
 --- a/Makefile.pre.in
