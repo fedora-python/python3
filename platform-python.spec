@@ -97,7 +97,7 @@
 %global with_computed_gotos yes
 
 # Turn this to 0 to turn off the "check" phase:
-%global run_selftest_suite 0
+%global run_selftest_suite 1
 
 # We want to byte-compile the .py files within the packages using the new
 # python3 binary.
@@ -656,6 +656,7 @@ BuildPython() {
   --with-system-expat \
   --with-system-ffi \
   --enable-loadable-sqlite-extensions \
+  --with-lto \
 %if 0%{?with_valgrind}
   --with-valgrind \
 %endif
@@ -683,7 +684,7 @@ BuildPython optimized \
   python \
   python%{pybasever} \
 %ifarch %{ix86} x86_64
-  "--without-ensurepip" \
+  "--without-ensurepip --enable-optimizations" \
 %else
   "--without-ensurepip" \
 %endif
