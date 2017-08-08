@@ -486,9 +486,8 @@ Summary: Libraries and header files needed for Python development
 Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-BuildRequires: python-rpm-macros
-Requires: python-rpm-macros
-Requires: python3-rpm-macros
+BuildRequires: platform-python-rpm-macros
+Requires: platform-python-rpm-macros
 Requires: python3-rpm-generators
 
 %description devel
@@ -1327,6 +1326,9 @@ CheckPython optimized
 
 %changelog
 * Tue Aug 08 2017 Charalampos Stratakis <cstratak@redhat.com> - 3.6.2-8
+- Make platform-python-devel depend platform-python-rpm-macros
+
+* Tue Aug 08 2017 Charalampos Stratakis <cstratak@redhat.com> - 3.6.2-7
 - Create the platform-python package
 
 * Mon Aug 07 2017 Iryna Shcherbina <ishcherb@redhat.com> - 3.6.2-6
