@@ -126,7 +126,7 @@
 Summary: Version 3 of the Python programming language aka Python 3000
 Name: platform-python
 Version: %{pybasever}.2
-Release: 8%{?dist}
+Release: 9%{?dist}
 License: Python
 Group: Development/Languages
 
@@ -488,6 +488,7 @@ Requires: %{name} = %{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: %{name}-libs-devel%{?_isa} = %{version}-%{release}
 BuildRequires: platform-python-rpm-macros
+Requires: python-rpm-macros
 Requires: platform-python-rpm-macros
 Requires: python3-rpm-generators
 
@@ -1326,6 +1327,9 @@ CheckPython optimized
 # ======================================================
 
 %changelog
+* Thu Aug 10 2017 Tomas Orsava <torsava@redhat.com> - 3.6.2-9
+- Re-add runtime dependency on python-rpm-macros
+
 * Tue Aug 08 2017 Charalampos Stratakis <cstratak@redhat.com> - 3.6.2-8
 - Make platform-python-devel depend on platform-python-libs-devel
   and platform-python-rpm-macros
