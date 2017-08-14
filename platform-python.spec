@@ -951,7 +951,6 @@ CheckPython optimized
 # ======================================================
 
 %files
-%defattr(-, root, root)
 %license LICENSE
 %doc README.rst
 %exclude %{_bindir}
@@ -959,7 +958,6 @@ CheckPython optimized
 %exclude %{_mandir}/*/*
 
 %files libs
-%defattr(-,root,root,-)
 %license LICENSE
 %doc README.rst
 %dir %{pylibdir}
@@ -1119,7 +1117,6 @@ CheckPython optimized
 %{_libdir}/libplatform-python3.so
 
 %files libs-devel
-%defattr(-,root,root,-)
 %license LICENSE
 %doc README.rst
 
@@ -1173,7 +1170,6 @@ CheckPython optimized
 
 
 %files devel
-%defattr(-,root,root)
 %{pylibdir}/config-%{LDVERSION_optimized}-%{_arch}-linux%{_gnu}/*
 %exclude %{pylibdir}/config-%{LDVERSION_optimized}-%{_arch}-linux%{_gnu}/Makefile
 %{pylibdir}/distutils/command/wininst-*.exe
@@ -1188,13 +1184,11 @@ CheckPython optimized
 %{_rpmconfigdir}/macros.d/macros.pybytecompile-%{name}
 
 %files tools
-%defattr(-,root,root,755)
 # %%{_bindir} is excluded in the main package
 %{pylibdir}/Tools
 %doc %{pylibdir}/Doc
 
 %files tkinter
-%defattr(-,root,root,755)
 %{pylibdir}/tkinter
 %exclude %{pylibdir}/tkinter/test
 %{dynload_dir}/_tkinter.%{SOABI_optimized}.so
@@ -1207,7 +1201,6 @@ CheckPython optimized
 %{pylibdir}/turtledemo/__pycache__/*%{bytecode_suffixes}
 
 %files test
-%defattr(-, root, root)
 %{pylibdir}/ctypes/test
 %{pylibdir}/distutils/tests
 %{pylibdir}/sqlite3/test
