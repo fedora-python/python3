@@ -94,7 +94,7 @@
 Summary: A Python interpreter for basic system tools
 Name: platform-python
 Version: %{pybasever}.2
-Release: 9%{?dist}
+Release: 10%{?dist}
 License: Python
 
 
@@ -1250,6 +1250,12 @@ CheckPython optimized
 # ======================================================
 
 %changelog
+* Mon Aug 14 2017 Petr Viktorin <pviktori@redhat.com> - 3.6.2-10
+- Remove bundled setuptools, pip, ensurepip
+- Have /usr/libexec symlink point from generic to specific version binaries
+- Adjust summaries and descriptions for platfrom-python
+- Specfile cleanup
+
 * Thu Aug 10 2017 Tomas Orsava <torsava@redhat.com> - 3.6.2-9
 - Re-add runtime dependency on python-rpm-macros
 
