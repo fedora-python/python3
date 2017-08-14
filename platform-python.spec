@@ -390,8 +390,6 @@ URL: https://www.python.org/
 # See notes in bug 532118:
 Provides: platform-python(abi) = %{pybasever}
 
-Provides: bundled(python3-setuptools) = 28.8.0
-
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 
 %description
@@ -1161,12 +1159,7 @@ CheckPython optimized
 %{pylibdir}/wsgiref
 %{pylibdir}/xmlrpc
 
-%dir %{pylibdir}/ensurepip/
-%dir %{pylibdir}/ensurepip/__pycache__/
-%{pylibdir}/ensurepip/*.py
-%{pylibdir}/ensurepip/__pycache__/*%{bytecode_suffixes}
-%exclude %{pylibdir}/ensurepip/_bundled/pip*.whl
-%{pylibdir}/ensurepip/_bundled/setuptools*.whl
+%exclude %{pylibdir}/ensurepip/
 
 
 %{pylibdir}/idlelib
