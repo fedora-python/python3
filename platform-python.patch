@@ -178,6 +178,15 @@ index 8b6454f..bf83e4f 100644
  	if test -n "$(DLLLIBRARY)"; then \
  		$(LDSHARED) -Wl,--out-implib=$@ -o $(DLLLIBRARY) $^ \
  			$(LIBS) $(MODLIBS) $(SYSLIBS) $(LDLAST); \
+@@ -1346,7 +1346,7 @@
+ python-config: $(srcdir)/Misc/python-config.in Misc/python-config.sh
+ 	# Substitution happens here, as the completely-expanded BINDIR
+ 	# is not available in configure
+-	sed -e "s,@EXENAME@,$(BINDIR)/python$(LDVERSION)$(EXE)," < $(srcdir)/Misc/python-config.in >python-config.py
++	sed -e "s,@EXENAME@,/usr/libexec/platform-python$(LDVERSION)$(EXE)," < $(srcdir)/Misc/python-config.in >python-config.py
+ 	# Replace makefile compat. variable references with shell script compat. ones; $(VAR) -> ${VAR}
+ 	LC_ALL=C sed -e 's,\$$(\([A-Za-z0-9_]*\)),\$$\{\1\},g' < Misc/python-config.sh >python-config
+ 	# On Darwin, always use the python version of the script, the shell
 @@ -1485,12 +1485,12 @@ frameworkinstallstructure:	$(LDLIBRARY)
  # Install a number of symlinks to keep software that expects a normal unix
  # install (which includes python-config) happy.

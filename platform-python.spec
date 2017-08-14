@@ -405,8 +405,6 @@ Summary:        Platform Python runtime libraries
 # yet upgraded expat:
 Requires: expat >= 2.1.0
 
-%define __requires_exclude ^(/usr/bin/python3.*|python\\(abi\\) = 3\\..*)$
-
 # Python 3 built with glibc >= 2.24.90-26 needs to require it (rhbz#1410644).
 Requires: glibc%{?_isa} >= 2.24.90-26
 
@@ -1254,6 +1252,7 @@ CheckPython optimized
 - Remove bundled setuptools, pip, ensurepip
 - Have /usr/libexec symlink point from generic to specific version binaries
 - Adjust summaries and descriptions for platfrom-python
+- Remove __requires_exclude
 - Specfile cleanup
 
 * Thu Aug 10 2017 Tomas Orsava <torsava@redhat.com> - 3.6.2-9
