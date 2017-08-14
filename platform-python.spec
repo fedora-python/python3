@@ -958,13 +958,8 @@ CheckPython optimized
 %defattr(-, root, root)
 %license LICENSE
 %doc README.rst
-%exclude %{_bindir}/pydoc*
-%exclude %{_bindir}/python3
+%exclude %{_bindir}
 %{_libexecdir}/platform-python*
-%exclude %{_bindir}/python%{pybasever}
-%exclude %{_bindir}/python%{pybasever}m
-%exclude %{_bindir}/pyvenv
-%exclude %{_bindir}/pyvenv-%{pybasever}
 %exclude %{_mandir}/*/*
 
 %files libs
