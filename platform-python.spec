@@ -123,12 +123,11 @@
 # ==================
 # Top-level metadata
 # ==================
-Summary: Version 3 of the Python programming language aka Python 3000
+Summary: A Python interpreter for basic system tools
 Name: platform-python
 Version: %{pybasever}.2
 Release: 9%{?dist}
 License: Python
-Group: Development/Languages
 
 
 # =======================
@@ -428,25 +427,11 @@ Provides: bundled(python3-setuptools) = 28.8.0
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 
 %description
-Python is an interpreted, interactive, object-oriented programming
-language often compared to Tcl, Perl, Scheme or Java. Python includes
-modules, classes, exceptions, very high level dynamic data types
-and dynamic typing. Python supports interfaces to many system calls and
-libraries, as well as to various windowing systems (X11, Motif, Tk,
-Mac and MFC).
-
-Programmers can write new built-in modules for Python in C or C++.
-Python can be used as an extension language for applications that
-need a programmable interface.
-
-Note that documentation for Python is provided in the python3-docs package.
-
-This package provides the "python3" executable; most of the actual
-implementation is within the "python3-libs" and "system-python-libs" packages.
+Python interpreter for low-level system tools, designed to work with
+the Platform module.
 
 %package libs
-Summary:        Python runtime libraries
-Group:          Development/Libraries
+Summary:        Platform Python runtime libraries
 
 # expat 2.1.0 added the symbol XML_SetHashSalt without bumping SONAME.  We use
 # this symbol (in pyexpat), so we must explicitly state this dependency to
@@ -460,14 +445,13 @@ Requires: expat >= 2.1.0
 Requires: glibc%{?_isa} >= 2.24.90-26
 
 %description libs
-This package contains runtime libraries for use by Python:
-- the libpython dynamic library, for use by applications that embed Python as
-a scripting language, and by the main "python3" executable
+This package contains runtime libraries for use by Platform Python:
+- the libpython dynamic library for embedding Platform Python as
+a scripting language, and the main platform-python executable
 - the Python standard library
 
 %package libs-devel
-Summary:        Python runtime libraries
-Group:          Development/Libraries
+Summary:        Platform Python runtime libraries
 
 # expat 2.1.0 added the symbol XML_SetHashSalt without bumping SONAME.  We use
 # this symbol (in pyexpat), so we must explicitly state this dependency to
@@ -476,14 +460,13 @@ Group:          Development/Libraries
 Requires: expat >= 2.1.0
 
 %description libs-devel
-This package contains runtime libraries for use by Python:
-- the libpython dynamic library, for use by applications that embed Python as
-a scripting language, and by the main "python3" executable
+This package contains runtime libraries for use by Platform Python:
+- the libpython dynamic library for embedding Platform Python as
+a scripting language, and the main platform-python executable
 - the Python standard library
 
 %package devel
-Summary: Libraries and header files needed for Python development
-Group: Development/Libraries
+Summary: Libraries and header files needed for Platform Python development
 Requires: %{name} = %{version}-%{release}
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: %{name}-libs-devel%{?_isa} = %{version}-%{release}
@@ -495,17 +478,11 @@ Requires: python3-rpm-generators
 %description devel
 The Python programming language's interpreter can be extended with
 dynamically loaded extensions and can be embedded in other programs.
-This package contains the header files and libraries needed to do
-these types of tasks.
-
-Install python3-devel if you want to develop Python extensions. The
-python3 package will also need to be installed.  You'll probably also
-want to install the python3-docs package, which contains Python
-documentation.
+This package contains the header files and libraries needed to build tools
+that extend or embed Platform Python.
 
 %package tools
-Summary: A collection of tools included with Python
-Group: Development/Tools
+Summary: A collection of tools included with Platform Python
 Requires: %{name} = %{version}-%{release}
 Requires: %{name}-tkinter = %{version}-%{release}
 
@@ -513,17 +490,15 @@ Requires: %{name}-tkinter = %{version}-%{release}
 This package contains several tools included with Python
 
 %package tkinter
-Summary: A GUI toolkit for Python
-Group: Development/Languages
+Summary: A GUI toolkit for Platform Python
 Requires: %{name} = %{version}-%{release}
 
 %description tkinter
 The Tkinter (Tk interface) program is a graphical user interface for
-the Python scripting language.
+Platform Python.
 
 %package test
-Summary: The test modules from the main python3 package
-Group: Development/Languages
+Summary: Self-test suite form Platform Python
 Requires: %{name} = %{version}-%{release}
 Requires: %{name}-tools = %{version}-%{release}
 
@@ -531,9 +506,6 @@ Requires: %{name}-tools = %{version}-%{release}
 The test modules from the main %{name} package.
 These are in a separate package to save space, as they are almost never used
 in production.
-
-You might want to install the python3-test package if you're developing
-python code that uses more than just unittest and/or test_support.py.
 
 
 # ======================================================
