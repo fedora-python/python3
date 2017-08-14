@@ -697,8 +697,6 @@ InstallPython optimized \
 
 install -d -m 0755 ${RPM_BUILD_ROOT}%{pylibdir}/site-packages/__pycache__
 
-mv ${RPM_BUILD_ROOT}%{_bindir}/2to3 ${RPM_BUILD_ROOT}%{_bindir}/python3-2to3
-
 # Development tools
 install -m755 -d ${RPM_BUILD_ROOT}%{pylibdir}/Tools
 install Tools/README ${RPM_BUILD_ROOT}%{pylibdir}/Tools/
@@ -1182,10 +1180,7 @@ CheckPython optimized
 %{_includedir}/platform-python%{LDVERSION_optimized}/*.h
 %exclude %{_includedir}/platform-python%{LDVERSION_optimized}/%{_pyconfig_h}
 %doc Misc/README.valgrind Misc/valgrind-python.supp Misc/gdbinit
-%exclude %{_bindir}/python3-config
-%exclude %{_bindir}/python%{pybasever}-config
-%exclude %{_bindir}/python%{LDVERSION_optimized}-config
-%exclude %{_bindir}/python%{LDVERSION_optimized}-*-config
+# %%{_bindir} is excluded in the main package
 %{_libdir}/libplatform-python%{LDVERSION_optimized}.so
 %exclude %{_libdir}/pkgconfig/python-%{LDVERSION_optimized}.pc
 %exclude %{_libdir}/pkgconfig/python-%{pybasever}.pc
@@ -1194,9 +1189,7 @@ CheckPython optimized
 
 %files tools
 %defattr(-,root,root,755)
-%exclude %{_bindir}/python3-2to3
-%exclude %{_bindir}/2to3-%{pybasever}
-%exclude %{_bindir}/idle*
+# %%{_bindir} is excluded in the main package
 %{pylibdir}/Tools
 %doc %{pylibdir}/Doc
 
@@ -1254,6 +1247,7 @@ CheckPython optimized
 - Adjust summaries and descriptions for platfrom-python
 - Remove __requires_exclude
 - Remove scriptlets for libs-devel
+- Use one %%excludes for _bindir
 - Specfile cleanup
 
 * Thu Aug 10 2017 Tomas Orsava <torsava@redhat.com> - 3.6.2-9
