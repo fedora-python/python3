@@ -948,9 +948,9 @@ CheckPython optimized
 
 %postun libs -p /sbin/ldconfig
 
-%post libs-devel -p /sbin/ldconfig
-
-%postun libs-devel -p /sbin/ldconfig
+# ======================================================
+# Files
+# ======================================================
 
 %files
 %defattr(-, root, root)
@@ -1253,6 +1253,7 @@ CheckPython optimized
 - Have /usr/libexec symlink point from generic to specific version binaries
 - Adjust summaries and descriptions for platfrom-python
 - Remove __requires_exclude
+- Remove scriptlets for libs-devel
 - Specfile cleanup
 
 * Thu Aug 10 2017 Tomas Orsava <torsava@redhat.com> - 3.6.2-9
